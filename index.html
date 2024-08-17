@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>p curve analysis</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark"/>
+    <link rel="icon" href="favicon.ico" />
+    <link rel="stylesheet" href="reset.css" />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="pcurve.css" />
+    <link rel="stylesheet" href="tinytabs.css" />
+    <script type="module" src="/src/main.mjs"></script>
+    <script src="tinytabs.min.js"></script>
+  </head>
+  <body>
+    <h2>p curve analysis</h2>
+    <input id='displayurl'></input>
+    <div class="tooltip">
+      <button onclick="copyurl()" onmouseout="tooltipOut()" class="btn btn-square btn-lg btn-filled-grey">
+        <span class="tooltiptext" id="myTooltip">Click to copy link to analysis to your clipboard</span>
+        Copy link
+      </button>
+    </div>
+    <p id="status-message"></p>
+    <div class="pcurvecontainer">
+      <div class="pcurveleft">
+        <div id="backdrop"></div>
+        <textarea id="TApcurve" class="TApcurve" disabled>
+t(88)=2.1
+r(147)=.246
+F(1,100)=9.1
+f(2,210)=4.45
+Z=3.45
+chi2(1)=9.1
+r(77)=.47
+chi2(2)=8.74
+</textarea>
+      </div>
+      <div class="pcurveright">
+        <div id="mytabs">
+          <div class="section" id="tests">
+            <h3 class="title">Tests</h3>
+            <div id="table1" class="table"></div>
+          </div>
+          <div class="section" id="data">
+            <h3 class="title">Data table</h3>
+            Content
+          </div>
+        </div>
+      </div>
+    </div>
+   
+    <div id="ojs-barplot" class="plot"></div>
+    
+    <script>
+    // With options.
+    document.addEventListener("DOMContentLoaded", function(e) { 
+      tinytabs(document.querySelector("#mytabs"), {
+        anchor: true,
+        hideTitle: false
+      });
+    });
+
+    function copyurl() {
+      // Get the text field
+      var copyText = document.getElementById("displayurl");
+
+      // Select the text field
+      copyText.select();
+      copyText.setSelectionRange(0, 99999); // For mobile devices
+
+      // Copy the text inside the text field
+      navigator.clipboard.writeText(copyText.value);
+
+      // Alert the copied text
+      //alert("Copied link: " + copyText.value);
+      var tooltip = document.getElementById("myTooltip");
+      tooltip.innerHTML = "Copied: " + copyText.value;
+    } 
+    
+    function tooltipOut() {
+      var tooltip = document.getElementById("myTooltip");
+      tooltip.innerHTML = "Click to copy link to analysis to your clipboard";
+    }
+
+  </script>
+
+  </body>
+</html>

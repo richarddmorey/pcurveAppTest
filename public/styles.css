@@ -1,0 +1,16 @@
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: auto;
+}
+
+.msg {
+  font-family: monospace;
+  color: #d4896a;
+}
+
+#ojs-barplot {
+  margin-bottom: 1rem;
+}

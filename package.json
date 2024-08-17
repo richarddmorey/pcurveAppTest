@@ -1,0 +1,30 @@
+{
+  "name": "glitch-hello-webr",
+  "version": "0.0.5",
+  "description": "",
+  "scripts": {
+    "start": "vite",
+    "build": "vite build",
+    "serve": "vite preview"
+  },
+  "dependencies": {
+    "@observablehq/plot": "^0.6.4",
+    "js-base64": "^3.7.7",
+    "rollup": "^3.20.4",
+    "vite-plugin-top-level-await": "^1.3.0",
+    "webr": "^0.4.1"
+  },
+  "devDependencies": {
+    "vite": "^4.5.3"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead"
+  ],
+  "engines": {
+    "node": "20.x"
+  },
+  "glitch": {
+    "projectType": "generated_static"
+  }
+}
