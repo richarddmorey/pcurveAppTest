@@ -39,13 +39,15 @@ main {
   margin-top: 5vh;
 }
 
-/* Dark/Light mode */
+/* Dark/Light mode 
 @media (prefers-color-scheme: dark) {
   body {
     background-color: #111;
     color: #eee;
   }
 }
+*/
+
 
 /* Set default vw to 100 */
 html, body {

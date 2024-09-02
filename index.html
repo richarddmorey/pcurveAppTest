@@ -4,55 +4,241 @@
     <title>p curve analysis</title>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="color-scheme" content="light dark"/>
-    <link rel="icon" href="favicon.ico" />
-    <link rel="stylesheet" href="reset.css" />
-    <link rel="stylesheet" href="styles.css" />
-    <link rel="stylesheet" href="pcurve.css" />
-    <link rel="stylesheet" href="tinytabs.css" />
-    <script type="module" src="/src/main.mjs"></script>
-    <script src="tinytabs.min.js"></script>
+    <!--meta name="color-scheme" content="light dark"/-->
+    <link rel="icon" href="/favicon.ico"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="/reset.css" />
+    <link rel="stylesheet" href="/styles.css" />
+    <link rel="stylesheet" href="/pcurve.css" />
+    <link rel="stylesheet" href="/tinytabs.css" />
+    <link href="https://cdn.jsdelivr.net/gh/tofsjonas/sortable@latest/sortable.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/gh/tofsjonas/sortable@latest/sortable.min.js"></script>
+    
+    <script src="/tinytabs.min.js"></script>
+    <!-- Req for svg-exportJS plugin -->
+    <script src="https://cdn.jsdelivr.net/npm/pdfkit@0.13.0/js/pdfkit.standalone.js" integrity="sha256-41qk5dewLKulpzhP3H6G7mY+5q+vzxMaxolsOGmZD/8=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/blob-stream-browserify@0.1.3/index.js" integrity="sha256-bFrIR3MiIsKhM2EDZdTJ3eY7iSluq1W7e6dNVwScEYw=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/svg-to-pdfkit@0.1.8/source.js" integrity="sha256-NaOoypZxJFnz2e4IeMtA9+UMZ5Fh85ljICcUts98jqY=" crossorigin="anonymous"></script>
+    <!-- svg-exportJS plugin -->
+    <script src="https://sharonchoong.github.io/svg-exportJS/svg-export.min.js" crossorigin="anonymous"></script>
+    <script type="module" crossorigin src="/assets/index-105bcf8f.js"></script>
   </head>
   <body>
     <h2>p curve analysis</h2>
-    <input id='displayurl'></input>
-    <div class="tooltip">
-      <button onclick="copyurl()" onmouseout="tooltipOut()" class="btn btn-square btn-lg btn-filled-grey">
+    <input id="displayurl" />
+    <div class="tooltip0">
+      <button onclick="copyurl()" onmouseout="tooltipOut()" type="button" class="btn btn-dark">
         <span class="tooltiptext" id="myTooltip">Click to copy link to analysis to your clipboard</span>
         Copy link
       </button>
     </div>
     <p id="status-message"></p>
+    <div class="alert alert-info" role="alert" onclick="this.style.display='none'">
+      <span style="font-size: 200%;">&#9432;</span> This app is provided for informational purposes. We do not recommend the use of the p curve procedure. [click to dismiss]
+    </div>
     <div class="pcurvecontainer">
+      <div id="loadingoverlay"><img src="spinner.svg"/></div>
       <div class="pcurveleft">
+        <p>
+          <i>Change the values below; the analysis will automatically update.</i>
+        </p>
         <div id="backdrop"></div>
         <textarea id="TApcurve" class="TApcurve" disabled>
-t(88)=2.1
-r(147)=.246
-F(1,100)=9.1
-f(2,210)=4.45
-Z=3.45
-chi2(1)=9.1
-r(77)=.47
-chi2(2)=8.74
+t(88)=2.1 # Study 1
+r(147)=.246 # Study 2; Another comment
+F(1,100)=9.1 # Study 3
+f(2,210)=4.45 # Study 4
+Z=3.45 # Study 5
+chi2(1)=9.1 # Study 6
+r(77)=.47 # Study 7
+chi2(2)=8.74 # Study 8
 </textarea>
+        <!--Holding div for simplified analysis text-->
+        <textarea style="display:none" id="simpletext"></textarea>
+        <button onclick="copysimple()" type="button" class="btn btn-dark">
+        Copy simplified text
+      </button>
       </div>
       <div class="pcurveright">
         <div id="mytabs">
+          <div class="section" id="plot">
+            <h3 class="title">Plot</h3>
+            <div id="ojs-plot" class="plot"></div>
+            <p>
+              <button onclick="downloadSVG();" class="btn btn-dark">Save as PDF</button>
+            </p>
+          </div>          
           <div class="section" id="tests">
             <h3 class="title">Tests</h3>
-            <div id="table1" class="table"></div>
+            <div class="form-check form-switch">
+              <p>
+                <input class="form-check-input" type="checkbox" id="halftoggle">
+                <label class="form-check-label" for="flexSwitchCheckDefault">Include half p-curves?</label>
+              </p>
+            </div>
+            <div id="table1" class="table table-responsive"></div>
+            <p>
+              <button onclick="download_table_as_csv('#table1 table', 'pcurve_tests');" class="btn btn-dark">Save table as CSV</button>
+            </p>
           </div>
           <div class="section" id="data">
             <h3 class="title">Data table</h3>
-            Content
+            <div id="table2" class="table table-responsive"></div>
+            <p>
+              <button onclick="download_table_as_csv('#table2 table', 'pcurve_data');" class="btn btn-dark">Save table as CSV</button>
+            </p>
+          </div>
+          <div class="section" id="help">
+            <h3 class="title">Help</h3>
+            <h4>General</h4>
+              <p>
+                You can enter any of five kinds of test statistics (F, z, t, r, chi2) in the format
+                shown by the default value of the analysis. In general, these are the same statistics
+                and formats supported by <a target="_blank" href="https://www.p-curve.com/app4/">Simonsohn et al's app</a>. 
+                Lines highlighted in pink cannot be read as test statistics and are ignored. You can use feature to 
+                add comments to your input.
+              </p>
+              <p>
+                Also, any text after a test statistic that follows a hash (<code>#</code>) will be read as a 
+                line-specific comment and highlighted in blue. You can use this to label specific test statistics; for instance, to note what study they've been taken from. The comments will be shown in the plot and in the data table.
+              </p>
+              <p>
+                You can also click the "Copy link" button at the top of the page to obtain a link that will
+                point back to the current analysis. The link will be copied to your clipboard.
+              </p>
+              <p>
+                If you would like to copy a simplified version of the analysis text for pasting into 
+                <a target="_blank" href="https://www.p-curve.com/app4/">Simonsohn et al's app</a>, click the 
+                "Copy simplified text" button below the analysis text area. This removes all comments 
+                and copies the simplified analysis to your clipboard.
+              </p>
+              <p>
+                The code base for this app is completely independent of <a target="_blank" href="https://www.p-curve.com/app4/">Simonsohn et al's app</a>, so may produce slightly different results in some cases. For instance, as of version 4.10, Simonsohn et al's app truncates all p values to be greater than 2.2e-16 (corresponding to a Z statistic of about 8.21). Our app does not do this.
+              </p>
+              <p>
+                See the <a href="#tab-examples" onclick="document.getElementsByClassName('tab-examples')[0].click()">Examples tab</a> for demonstrations.
+              </p>
+            <h4>Plot</h4>
+              <p>
+                The plot shows the empirical cumulative distribution of the p values of the significant (at 0.05) test statistics entered into the app. Note that for clarity the x axis is logarithmic. The figure also shows what would be expected if the p values were independent draws from a uniform distribution.
+              </p>
+              <img src="pcurve_app_figure.png" class="appfig"/>
+              <ol type="a">
+                <li>Each point represents a study entered into the textbox. Move you mouse over a point to get information about that point. Each point is treated as an order statistic.
+                <li>The light blue ribbon represents the 90% interval (5%-95%) in which the corresponding order statistic (e.g. the third smallest p value if the point is the third from the bottom) would be expected to be found if the distribution of p values were uniform. Note that this interval is point-wise, and not simultaneous (that is: there is a 90% probability that each point is within the ribbon, not that all points are within the ribbon). Note also that order statistics are not independent (so the probability that more than one is outside the ribbon, even given a uniform distribution, may be larger than one would expect). 
+                <li>The dark blue line within the ribbon represents the median for the corresponding order statistic if the distribution of p values were uniform.
+                <li>The purple diamond represents the geometric mean of all the significant p values entered into the app.
+                <li>The light blue band represents the 90% interval (5%-95%) within which the geometric mean p value would be expected to be found if the distribution of p values were uniform. This is a form of Fisher's meta-analytic test conditioned on significance (that is, Simonsohn et al's 2014 test for "evidential value"); if the diamond is to the left of this band, this test is significant at the 5% level.
+              </ol>
+            <h4>Tests</h4>
+              <p>
+                The tests table contains the results of the various p curve tests that Simonsohn et al have developed. Each column is described below. We do not show the half p-curve tests by default, for reasons that are explained in our paper. Click the "Include half p-curves?" check box to show them.
+              </p>
+              <dl>
+                <dt>Test</dt>
+                <dd>"EV" refers to Simonsohn et al's "evidential value" or "right skew" test; "LEV" refers to their "lack of evidential value" or "flatter than 33% power" test.</dd>
+                <dt>α</dt>
+                <dd>α (alpha) represents the critical boundary chosen for the test. 0.05 is their "full" p-curve; 0.025 is their "half" p curve.</dd>
+                <dt>Fisher χ2</dt>
+                <dd>The χ2 test statistic for Simonsohn et al's (2014) p curve test using a log transformation on the scaled p values (Fisher's method). The test statistic has 2k degrees of freedom, where k is the number of significant studies.</dd>
+                <dt>Fisher p</dt>
+                <dd>The p value corresponding to the Fisher χ2 test statistic.</dd>
+                <dt>Stouffer Z</dt>
+                <dd>The Z test statistic for Simonsohn et al's (2015) p curve test using a probit transformation on the scaled p values (Stouffer's method).</dd>
+                <dt>Stouffer p</dt>
+                <dd>The p value corresponding to the Stouffer Z test statistic.</dd>
+                <dt># studies</dt>
+                <dd>The total number of test statistics detected in the input.</dd>
+                <dt># sig.</dt>
+                <dd>The number of studies significant at the α-level in the α column.</dd>
+              </dl>
+
+            <h4>Data table</h4>
+              <p>
+                The data table shows all the test statistics detected in the input.
+              </p>
+              <dl>
+                <dt>Line</dt>
+                <dd>The line number of the input on which that statistic was found.</dd>
+                <dt>Input</dt>
+                <dd>The test statistic entered on this line of the input.</dd>
+                <dt>Comment</dt>
+                <dd>The comment given for that test statistic (entered after a hash (<code>#</code> on that input row).</dd>
+                <dt>p</dt>
+                <dd>The recomputed p value for the entered test statistic.</dd>
+                <dt>Sig.?</dt>
+                <dd>Is the p value in this row significant at 0.05? ✅ means p&lt;0.05, and hence the value will be included in the full p-curve; ❌ means p≥0.05, and hence the value will not be included.</dd>
+                <dt>Fisher</dt>
+                <dd>The contribution of that row's test statistic to the overall Fisher's χ2 statistic. The sum of this column is the total χ2 statistic in the tests table (within rounding error).</dd>
+                <dt>Stouffer</dt>
+                <dd>The contribution of that row's test statistic to the overall Stouffer's Z statistic. The sum of this column is the total Z statistic in the tests table (within rounding error).</dd>
+                <dt>LEV NCP</dt>
+                <dd>The noncentrality parameter used for the full p-curve LEV test ("lack of evidential value", or "flatter than 33% power") for the test statistic in that row; i.e. the distribution of the test statistic that would yield a 1/3 probability of significance at 0.05.</dd>
+              </dl>
+          </div>
+          <div class="section" id="examples">
+            <h3 class="title">Examples</h3>
+            <p>
+              All links open in new windows.
+            </p>
+            <h4> Replications of published analyses</h4>
+              <p>
+                <a target="_blank" href="/?data=IyBUaGlzIGlzIGEgcmVwbGljYXRpb24gb2YgdGhlCiMgYW5hbHlzaXMgaW4gdGhlIHN1cHBsZW1lbnQgb2YKIyBMZWUgJiBTY2h3YXJ0eiAoMjAyMTsgZG9pOjEwLjEwMTcvUzAxNDA1MjVYMjAwMDA2NDMpCiMgU2VlIGh0dHBzOi8vb3NmLmlvL3N4ejk3Lz92aWV3X29ubHk9NjMwYWY3OWVlNmMxNDlhNTgzM2E0ZDJmYmI0Y2Q1NjAKdCgxMDUpPS0yLjExICAgIyBKLiBMLiBIdWFuZywgMjAxNCwgc3R1ZHkgMQp0KDIxNik9LTIuMTAgICAjIEouIEwuIEh1YW5nLCAyMDE0LCBzdHVkeSAyCnQoMjIwKT0tMi43OCAgICMgSi4gTC4gSHVhbmcsIDIwMTQsIHN0dWR5IDJhCnQoNTgpPTEuODQgICAgICMgQXJiZXNmZWxkIGV0IGFsLiwgMjAxNAp0KDU4KT0tMS44ICAgICAjIEJlc21hbiBldCBhbCwgMjAxMwpGKDEsMTE2KT0zLjY4ICAjIE1hcm90dGEgJiBCb2huZXIsIDIwMTMKRigxLDQ0KT01Ljc3ICAgIyBEZSBMb3MgUmV5ZXMgMjAxMgpjaGkyKDEpPTcuNTAgICAjIE1vc2NhdGllbGxvICYgTmFnZWwsIDIwMTQsIHN0dWR5IDEKY2hpMigxKT0wLjgzMzMgIyBNb3NjYXRpZWxsbyAmIE5hZ2VsLCAyMDE1LCBzdHVkeSAxCkYoMSwxOCk9MTEuMTcgICMgTW9zY2F0aWVsbG8gJiBOYWdlbCwgMjAxNCwgc3R1ZHkgMgpGKDEsMTgpPTE2Ljk2ICAjIE1vc2NhdGllbGxvICYgTmFnZWwsIDIwMTUsIHN0dWR5IDIKRigxLDM4KT0zLjYzICAgIyBTY2huYWxsLCBCZW50b24sICYgSGFydmV5LCAyMDA4LCBzdHVkeSAxCkYoMSw4Myk9Ny44MCAgICMgTGVlICYgU2Nod2FyeiwgMjAxMCwgc3R1ZHkgMgpGKDEsNzQpPTguNzYgICAjIFh1LCBad2ljaywgJiBTY2h3YXJ6LCAyMDEyLCBzdHVkeSAy">🔗 Replication of the analysis in the supplemental information of Lee & Schwartz (2021)</a>: demonstrates how this app improves the transparency of p curve analyses using comments and links
+              </p>
+            <h4> Demonstrations of problems with the p-curve</h4>
+              <p>For most of these we do not use Simonsohn et al's (2015) full/half rule for determining "evidential value"; to see why, see the nonmonotonicity demonstration. 
+              <h5>Sensitivity</h5>
+              <p>
+                <a target="_blank" href="?data=IyBUaGlzIGV4YW1wbGUgc2hvd3MgdGhlIHNlbnNpdGl2aXR5CiMgb2YgdGhlIHByb2JpdCAoU3RvdWZmZXIpCiMgdHJhbnNmb3JtYXRpb24gdG8gcm91bmRpbmcuClogPSAxLjk2NCAjIENoYW5nZSB0aGlzIHRvIDEuOTYKWiA9IDMuNApaID0gNAojIENoYW5nZSB0aGUgZmlyc3QgdmFsdWUgdG8gMS45NiwKIyBhbmQgbm90aWNlIGhvdyB0aGUgU3RvdWZmZXIgcCB2YWx1ZQojIGZvciB0ZXN0IEVWIGF0IGFscGhhPTAuMDUgY2hhbmdlcyAKIyBpbiB0aGUgdGVzdCB0YWIuCiMgQWxzbyBub3RpY2UgaG93IHRoZSBGaXNoZXIgcCB2YWx1ZQojIGZvciB0ZXN0IExFViBhdCBhbHBoYT0wLjA1IAojIGNoYW5nZXMuCg#tab-tests">🔗 Rounding sensitivity in full p curve</a>, test EV (Stouffer/probit) and test LEV (Fisher/log)
+              </p>
+              <p>
+                <a target="_blank" href="/?data=IyBUaGlzIGV4YW1wbGUgc2hvd3MgdGhlIHNlbnNpdGl2aXR5CiMgb2YgdGhlIHByb2JpdCAoU3RvdWZmZXIpCiMgdHJhbnNmb3JtYXRpb24gdG8gcm91bmRpbmcuCnQoMTgzKT0yLjI2NCAjIENoYW5nZSB0aGlzIHRvIDIuMjYKWj0zLjMKWj00LjUKIyBDaGFuZ2UgdGhlIGZpcnN0IHZhbHVlIHRvIDIuMjYsCiMgYW5kIG5vdGljZSBob3cgdGhlIFN0b3VmZmVyIHAgdmFsdWUKIyBmb3IgdGVzdCBFViBhdCBhbHBoYT0wLjAyNSBjaGFuZ2VzIAojIGluIHRoZSB0ZXN0IHRhYi4KIyBBbHNvIG5vdGljZSBob3cgdGhlIEZpc2hlciBwIHZhbHVlCiMgZm9yIHRlc3QgTEVWIGF0IGFscGhhPTAuMDI1CiMgY2hhbmdlcy4K#tab-tests">🔗 Rounding sensitivity in half p curve</a>, test EV (Stouffer/probit) and test LEV (Fisher/log)
+              </p>
+              <p>
+                <a target="_blank" href="/?data=IyBVc2luZyBTdG91ZmZlcidzL3Byb2JpdCBtZXRob2QKIyAoU2ltb25zb2huIGV0IGFsLCAyMDE1KSwKIyBhbnkgYXJiaXRyYXJpbHkgbGFyZ2UgdGVzdAojIHN0YXRpc3RpYyBjYW4gYmUgY2FuY2VsbGVkIG91dAojIGJ5IG9uZSBzdWZmaWNpZW50bHkgY2xvc2UgdG8gdGhlIAojIHNpZ25pZmljYW5jZSBib3VuZGFyeS4KWiA9IDguMiAjIEEgdmVyeSBsYXJnZSBaIHN0YXQuLi4KRigxLDIpID0gMTguNTEyODIwNTEyODIwNiAjIC4uLmNhbiBiZSBjb21wbGV0ZWx5IGNhbmNlbGxlZCBvdXQh#tab-data">🔗 Cancellation of arbitrarily large test statistics by values near the boundary</a>, tests EV and LEV (Stouffer/probit)
+              </p>
+              <p>
+                <a target="_blank" href="/?data=IyBUaGlzIHNob3dzIHRoYXQgYSBzaW5nbGUgdmFsdWUKIyBuZWFyIHRoZSBzaWduaWZpY2FuY2UgYm91bmRhcnkgCiMgY2FuIG5lZ2F0ZSB0aGUgZXZpZGVuY2UgZnJvbQojIHNldmVyYWwgc3R1ZGllcyB3aXRoIGh1Z2UgWiB2YWx1ZXMKIyBpbiB0ZXN0IExFViAoRmlzaGVyL2xvZywgzrE9MC4wNSkKY2hpMigxOTUpPTIyOC41OCAjIHAgaXMgbmVhciAuMDUKWj04Clo9OApaPTgKWj04Clo9OApaPTgKIyBJbiBmYWN0LCB5b3UgY2FuIG1ha2UgdGhlc2UgbGFyZ2UKIyBaIHN0YXRpc3RpY3MgYXMgbGFyZ2UgYXMgeW91IGxpa2UsCiMgYW5kIGl0IHdvbid0IG1hdHRlciB0byB0aGUgdGVzdAojIHJlc3VsdHMgKHRyeSBpdCEp#tab-tests#tab-data">🔗 Cancellation of many arbitrarily large test statistics by values near the boundary</a>, test LEV (Fisher/log), producing a "lack of evidential value". Also notice that the EV tests are significant.
+              </p>
+            <h5>Evidential value</h5>
+              <p>
+                <a target="_blank" href="/?data=IyBUaGVzZSAzMCBzdHVkaWVzIHRyaWdnZXIgYm90aCB0ZXN0cyAKIyBFViBhbmQgTEVWIHdpdGggU3RvdWZmZXIncwojIHRyYW5zZm9ybWF0aW9uLCBpbXBseWluZyAoYWNjb3JkaW5nIHRvIAojIFNpbW9uc29obiBldCBhbCkgdGhhdCB0aGUgc3R1ZGllcwojIGJvdGggImhhdmUgZXZpZGVudGlhbCB2YWx1ZSIgYW5kIAojICJsYWNrIGV2aWRlbnRpYWwgdmFsdWUiLiBJbnNwaXJlZCBieQojIHRoZSByZWFsLXdvcmxkIGV4YW1wbGVzIGluIAojIFdlc3QgZXQgYWwgKDIwMjApIAojIGRvaToxMC4xMDAyL2FiLjIxOTM3Clo9MS45OApaPTIKWj0yLjAyClo9Mi4wNApaPTIuMDYKWj0yLjA5Clo9Mi4xMQpaPTIuMTMKWj0yLjE2Clo9Mi4xOApaPTIuMjEKWj0yLjI0Clo9Mi4yNwpaPTIuMwpaPTIuMzMKWj0yLjM2Clo9Mi40Clo9Mi40MwpaPTIuNDcKWj0yLjUxClo9Mi41NgpaPTIuNjEKWj0yLjY2Clo9Mi43MgpaPTIuNzkKWj0yLjg2Clo9Mi45NQpaPTMuMDcKWj0zLjIyClo9My40Nw#tab-tests">🔗 Studies both have "evidential value", and lack it</a> tests EV and LEV (Stouffer/probit)
+              </p>
+            <h5>Nonmonotonicity</h5>
+              <p>These six sets of studies have test statistics that dominate each earlier set. Set 1 is not significant by Simonsohn et al's (2015) half/full evidential value rule and set 2 is significant. But then, set 3 is not significant and set 4 is significant. Then set 5 is not significant, and set 6 is significant. The procedure is not monotone in the evidence.
+              <p>
+                <a target="_blank" href="/?data=IyBEZW1vIG9mIG5vbm1vbm90b25pY2l0eSwgc2V0IDEKIyAiTm9uc2lnbmlmaWNhbnQiIGV2aWRlbnRpYWwgdmFsdWUKIyBUaGUgZmlyc3QgdHdvIHRlc3Qgc3RhdGlzdGljcwojIHdpbGwgaW5jcmVhc2UgdGhyb3VnaG91dCB0aGUgc2V0cwpaPTIuMQpaPTIuMQojIFRoZSBvbmVzIGJlbG93IHdpbGwgcmVtYWluIHRoZSAKIyB0aHJvdWdob3V0IHRoZSBzZXRzClo9MS45NzEKWj0xLjk4MwpaPTEuOTk2Clo9Mi4wMDkKWj0yLjI1OQpaPTIuMzI4Clo9Mi40Clo9Mi40NzkKWj0yLjU2NApaPTIuNjU3Clo9Mi43NjMKWj0yLjg4NQpaPTMuMDM0Clo9My4yMjkKWj0zLjUz#tab-tests">🔗 Set 1, "not significant"</a>: Full p curve yields p&gt;0.1 
+              </p>
+               <p>
+                <a target="_blank" href="/?data=IyBEZW1vIG9mIG5vbm1vbm90b25pY2l0eSwgc2V0IDMKIyAiU2lnbmlmaWNhbnQiIGV2aWRlbnRpYWwgdmFsdWUKIyBUaGUgZmlyc3QgdHdvIHRlc3Qgc3RhdGlzdGljcwojIHdpbGwgaW5jcmVhc2UgdGhyb3VnaG91dCB0aGUgc2V0cwpaPTIuMgpaPTIuMgojIFRoZSBvbmVzIGJlbG93IHdpbGwgcmVtYWluIHRoZSAKIyB0aHJvdWdob3V0IHRoZSBzZXRzClo9MS45NzEKWj0xLjk4MwpaPTEuOTk2Clo9Mi4wMDkKWj0yLjI1OQpaPTIuMzI4Clo9Mi40Clo9Mi40NzkKWj0yLjU2NApaPTIuNjU3Clo9Mi43NjMKWj0yLjg4NQpaPTMuMDM0Clo9My4yMjkKWj0zLjUz#tab-tests">🔗 Set 2, "significant"</a>: Increased two test statistics from set 1, and both full and half p curves yield p&lt;0.1
+              </p>
+               <p>
+                <a target="_blank" href="/?data=IyBEZW1vIG9mIG5vbm1vbm90b25pY2l0eSwgc2V0IDMKIyAiTm9uc2lnbmlmaWNhbnQiIGV2aWRlbnRpYWwgdmFsdWUKIyBUaGUgZmlyc3QgdHdvIHRlc3Qgc3RhdGlzdGljcwojIHdpbGwgaW5jcmVhc2UgdGhyb3VnaG91dCB0aGUgc2V0cwpaPTIuMjMKWj0yLjMKIyBUaGUgb25lcyBiZWxvdyB3aWxsIHJlbWFpbiB0aGUgCiMgdGhyb3VnaG91dCB0aGUgc2V0cwpaPTEuOTcxClo9MS45ODMKWj0xLjk5NgpaPTIuMDA5Clo9Mi4yNTkKWj0yLjMyOApaPTIuNApaPTIuNDc5Clo9Mi41NjQKWj0yLjY1NwpaPTIuNzYzClo9Mi44ODUKWj0zLjAzNApaPTMuMjI5Clo9My41Mw#tab-tests">🔗 Set 3, "not significant"</a>: Increased two test statistics from set 2, but half p-curve yields p&gt;0.1
+              </p>
+              <p>
+                <a target="_blank" href="?data=IyBEZW1vIG9mIG5vbm1vbm90b25pY2l0eSwgc2V0IDQKIyAiU2lnbmlmaWNhbnQiIGV2aWRlbnRpYWwgdmFsdWUKIyBUaGUgZmlyc3QgdHdvIHRlc3Qgc3RhdGlzdGljcwojIHdpbGwgaW5jcmVhc2UgdGhyb3VnaG91dCB0aGUgc2V0cwpaPTIuMjQKWj0yLjcKIyBUaGUgb25lcyBiZWxvdyB3aWxsIHJlbWFpbiB0aGUgCiMgdGhyb3VnaG91dCB0aGUgc2V0cwpaPTEuOTcxClo9MS45ODMKWj0xLjk5NgpaPTIuMDA5Clo9Mi4yNTkKWj0yLjMyOApaPTIuNApaPTIuNDc5Clo9Mi41NjQKWj0yLjY1NwpaPTIuNzYzClo9Mi44ODUKWj0zLjAzNApaPTMuMjI5Clo9My41Mw#tab-tests">🔗 Set 4, "significant"</a>: Increased two test statistics from set 3, and both full and half p curves yield p&lt;0.1
+              </p>
+              <p>
+                <a target="_blank" href="?data=IyBEZW1vIG9mIG5vbm1vbm90b25pY2l0eSwgc2V0IDUKIyAiTm9uc2lnbmlmaWNhbnQiIGV2aWRlbnRpYWwgdmFsdWUKIyBUaGUgZmlyc3QgdHdvIHRlc3Qgc3RhdGlzdGljcwojIHdpbGwgaW5jcmVhc2UgdGhyb3VnaG91dCB0aGUgc2V0cwpaPTIuMjUKWj0yLjkKIyBUaGUgb25lcyBiZWxvdyB3aWxsIHJlbWFpbiB0aGUgCiMgdGhyb3VnaG91dCB0aGUgc2V0cwpaPTEuOTcxClo9MS45ODMKWj0xLjk5NgpaPTIuMDA5Clo9Mi4yNTkKWj0yLjMyOApaPTIuNApaPTIuNDc5Clo9Mi41NjQKWj0yLjY1NwpaPTIuNzYzClo9Mi44ODUKWj0zLjAzNApaPTMuMjI5Clo9My41Mw#tab-tests">🔗 Set 5, "not significant"</a>: Increased two test statistics from set 4, but half p-curve yields p&gt;0.1 (so not significant by their rule)
+              </p>
+              <p>
+                <a target="_blank" href="/?data=IyBEZW1vIG9mIG5vbm1vbm90b25pY2l0eSwgc2V0IDYKIyAiU2lnbmlmaWNhbnQiIGV2aWRlbnRpYWwgdmFsdWUKIyBUaGUgZmlyc3QgdHdvIHRlc3Qgc3RhdGlzdGljcwojIHdpbGwgaW5jcmVhc2UgdGhyb3VnaG91dCB0aGUgc2V0cwpaPTIuMwpaPTMuMQojIFRoZSBvbmVzIGJlbG93IHdpbGwgcmVtYWluIHRoZSAKIyB0aHJvdWdob3V0IHRoZSBzZXRzClo9MS45NzEKWj0xLjk4MwpaPTEuOTk2Clo9Mi4wMDkKWj0yLjI1OQpaPTIuMzI4Clo9Mi40Clo9Mi40NzkKWj0yLjU2NApaPTIuNjU3Clo9Mi43NjMKWj0yLjg4NQpaPTMuMDM0Clo9My4yMjkKWj0zLjUz#tab-tests">🔗 Set 6, "significant"</a>: Increased two test statistics from set 5, and both full and half p curves yield p&lt;0.1 (so significant by their rule)
+              </p>
+          </div>
+          <div class="section" id="citation">
+            <h3 class="title">Citation</h3>
+              <h4>Our citations</h4>
+              <h4>General p curve citations</h4>
+              <ul>
+                <li>Simonsohn, U., Nelson, L. D., & Simmons, J. P. (2014). P-curve: A key to the file-drawer. <i>Journal of Experimental Psychology: General, 143</i>, 534–547. <a target="_blank" href="https://doi.org/10.1037/a0033242">doi:10.1037/a0033242</a>
+                <li>Simonsohn, U., Nelson, L. D., & Simmons, J. P. (2024). The p-curve app 4.10. <a href="https://www.p-curve.com/app4/" target="_blank">https://www.p-curve.com/app4/</a>
+                <li>Simonsohn, U., Simmons, J. P., & Nelson, L. D. (2015). Better p-curves: Making p-curve analysis more robust to errors, fraud, and ambitious p-hacking, a reply to Ulrich and Miller (2015). <i>Journal of Experimental Psychology: General, 144(6)</i>, 1146–1152. <a target="_blank" href="https://doi.org/10.1037/xge0000104">doi:10.1037/xge0000104</a>
+              </ul>
           </div>
         </div>
       </div>
     </div>
-   
-    <div id="ojs-barplot" class="plot"></div>
-    
+
     <script>
     // With options.
     document.addEventListener("DOMContentLoaded", function(e) { 
@@ -61,6 +247,11 @@ chi2(2)=8.74
         hideTitle: false
       });
     });
+
+    function downloadSVG(){
+      const svg = document.querySelector("#ojs-plot svg");
+      svgExport.downloadPdf(svg, 'ECDF of p values');
+    }
 
     function copyurl() {
       // Get the text field
@@ -82,6 +273,52 @@ chi2(2)=8.74
     function tooltipOut() {
       var tooltip = document.getElementById("myTooltip");
       tooltip.innerHTML = "Click to copy link to analysis to your clipboard";
+    }
+      
+    function copysimple() {
+      // Get the text field
+      var copyText = document.getElementById("simpletext");
+
+      // Select the text field
+      copyText.select();
+      copyText.setSelectionRange(0, 99999); // For mobile devices
+
+      // Copy the text inside the text field
+      navigator.clipboard.writeText(copyText.value);
+    } 
+
+    // https://stackoverflow.com/a/56370447/1129889
+    // Quick and simple export target #table_id into a csv
+    // Edited to accept selector as first argument and change filename
+    function download_table_as_csv(table_selector, filename = 'table', separator = ',') {
+      const tab = document.querySelector(table_selector)
+      // Select rows from table
+      var rows = tab.querySelectorAll('tr');
+      // Construct csv
+      var csv = [];
+      for (var i = 0; i < rows.length; i++) {
+          var row = [], cols = rows[i].querySelectorAll('td, th');
+          for (var j = 0; j < cols.length; j++) {
+              // Clean innertext to remove multiple spaces and jumpline (break csv)
+              var data = cols[j].innerText.replace(/(\r\n|\n|\r)/gm, '').replace(/(\s\s)/gm, ' ')
+              // Escape double-quote with double-double-quote (see https://stackoverflow.com/questions/17808511/properly-escape-a-double-quote-in-csv)
+              data = data.replace(/"/g, '""');
+              // Push escaped string
+              row.push('"' + data + '"');
+          }
+          csv.push(row.join(separator));
+      }
+      var csv_string = csv.join('\n');
+      // Download it
+      filename = `${filename}_${new Date().toLocaleDateString()}.csv`;
+      var link = document.createElement('a');
+      link.style.display = 'none';
+      link.setAttribute('target', '_blank');
+      link.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv_string));
+      link.setAttribute('download', filename);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     }
 
   </script>
