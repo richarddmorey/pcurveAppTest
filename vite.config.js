@@ -4,6 +4,7 @@ import rollup from "rollup"
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  base: "/pcurveAppTest/",
   plugins: [
 		topLevelAwait({
 			promiseExportName: "__tla",

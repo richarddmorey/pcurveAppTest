@@ -36,9 +36,16 @@ find_ncp_uniroot_f = function(pr=1/3,alphaBound=0.05,df1,df2){
 
 find_ncp_uniroot = memoise::memoise(find_ncp_uniroot0)
 
+stat_string = function(stat, df1, df2, value){
+    if(stat=='z') return(paste0("Z=",value))
+    if(stat=='f') return(paste0("F(",df1,",",df2,")=",value))
+    paste0(stat,"(",df1,")=",value)
+}
+
 pcurve_prep0 = memoise::memoise(
-  function(stat, df1, df2, value, comment, pr = 1/3, alphaBound = .05){
+  function(stat, df1, df2, value, comment, line, pr = 1/3, alphaBound = .05){
     stat = tolower(stat)
+    string = stat_string(stat, df1, df2, value)
     # Convert stats to F or chi2
     if(stat=='z'){
       df1 = 1
@@ -89,13 +96,15 @@ pcurve_prep0 = memoise::memoise(
         df2=df2,
         value=value,
         comment=comment,
+        line=line,
+        string=string,
         ncp=ncp,
         lp = lp
         )
       )
   })
   
-pcurve_prep = function(stat, df1, df2, value, comment, pr=1/3, alphaBound=.05){
+pcurve_prep = function(stat, df1, df2, value, comment, line, pr=1/3, alphaBound=.05){
   k0 = length(stat)
   res = mapply(
     FUN = pcurve_prep0,
@@ -104,6 +113,7 @@ pcurve_prep = function(stat, df1, df2, value, comment, pr=1/3, alphaBound=.05){
     df2 = df2,
     value = value,
     comment = comment,
+    line = line,
     SIMPLIFY = FALSE
   )
   do.call(rbind, args = res)
@@ -139,9 +149,28 @@ pcurve_prep0_LEV = memoise::memoise(function(stat, df1, df2, value, ncp, alphaBo
   return(lp)
 })
 
+pcurve_all = function(prep_table){
+  s = expand.grid(alphaBound=c(.05,.025), test = c("EV","LEV"), stringsAsFactors=FALSE)
+  res = mapply(FUN = pcurve, 
+    test = s$test, alphaBound = s$alphaBound,
+    MoreArgs = list(prep_table = prep_table),
+    SIMPLIFY = FALSE
+    ) 
+  tests = lapply(res, \(el) el$tests)
+  prep_table2 = res[[which(s$test == 'EV' & s$alphaBound == 0.05)]]$prep_table
+
+  x = do.call(rbind, tests)
+  rownames(x) = NULL
+  return(list(
+    prep_table = prep_table2,
+    tests = x
+  ))
+}
+
 pcurve = function(prep_table, alphaBound = 0.05, test = c("EV","LEV")){
   test = match.arg(test, c("EV","LEV"))
   prep_table$significant = prep_table$lp < log(alphaBound)
+  test_string = paste0(test,alphaBound)
   if(test == "EV"){
     lp = prep_table$lp - log(alphaBound)
   }else{
@@ -157,14 +186,19 @@ pcurve = function(prep_table, alphaBound = 0.05, test = c("EV","LEV")){
   if(k > 0){
   # Probit
     lp |>
-      qnorm(log.p=TRUE) |>
-      sum() -> sumz
-    teststat_probit = sumz/sqrt(k)
+      qnorm(log.p=TRUE) -> qn
+    contribution_probit = qn / sqrt(k)
+    teststat_probit = sum(contribution_probit)
     pval_probit = pnorm(teststat_probit)
     # Log
-    sumx = sum(lp) 
-    teststat_log = -2*sumx
+    contribution_log = -2*lp
+    teststat_log = sum(contribution_log)
     pval_log = pchisq(teststat_log,2*k,lower.tail = FALSE)
+  
+    prep_table$contr_log = prep_table$contr_probit = NA
+    prep_table$contr_log[prep_table$significant] = contribution_log
+    prep_table$contr_probit[prep_table$significant] = contribution_probit
+    
     tests = data.frame(
       test = test,
       alphaBound = alphaBound,
@@ -172,21 +206,152 @@ pcurve = function(prep_table, alphaBound = 0.05, test = c("EV","LEV")){
       pval_log = pval_log,
       teststat_probit = teststat_probit,
       pval_probit = pval_probit,
-      k_sig = k,
-      k_total = k0
+      k_total = k0,
+      k_sig = k
     )
   }else{
-    tests = NULL
+    tests = data.frame(
+      test = test,
+      alphaBound = alphaBound,
+      teststat_log = NA,
+      pval_log = NA,
+      teststat_probit = NA,
+      pval_probit = NA,
+      k_total = k0,
+      k_sig = k
+      )
   }
   return(list(prep_table = prep_table, tests = tests))
 }
 
-xtab = function(tab, class){
-  xtable::xtable(tab, digits = c(0,NA,3,2,4,2,4,0,0)) |>
-    print(
-      type = "html", 
-      print.results = FALSE,
-      include.rownames=FALSE,
-      html.table.attributes = paste0('class="',class,'"')
-    )
+make_tables = function(prep_table, pvalcols = c(), prep_class, test_class){
+  pc = pcurve_all(prep_table)
+  tests = pc[['tests']]
+  prep_table2 = pc[['prep_table']]
+  return(c(
+    xtab_prep(prep_table2, prep_class),
+    xtab_tests(tests, pvalcols, test_class)
+  ))
 }
+
+xtab_prep = function(tab, class){
+  tab$p = sapply(tab$lp, expString)
+  tab$sig = tab$lp < log(.05)
+  tab = tab[,c("line","string", "comment", "p", "sig","contr_log","contr_probit","ncp")]
+  tab$sig = ifelse(tab$sig,"✅","❌")
+  knitr::kable(tab, 
+               format = "html", 
+               digits = c(0,0,0,0,0,3,3,3),
+               align = c('r',rep('l',4),rep('r',3)),
+               row.names = FALSE,
+               escape=FALSE,
+               col.names = c(
+                 'Line',
+                 'Input',
+                 'Comment',
+                 '<span class="nott">p</span>',
+                 'Sig.?',
+                 'Fisher',
+                 'Stouffer',
+                 'LEV NCP'
+               )
+  )
+}
+  
+
+xtab_tests = function(tab, pvalcols = c(), class){
+  for(col in pvalcols){
+    tab[,col] = pval_style(tab[,col])
+  }
+  knitr::kable(tab, 
+    format = "html", 
+    digits = c(NA,3,2,4,2,4,0,0),
+    align = c('l',rep('r',7)),
+    escape=FALSE,
+    col.names = c(
+      'Test',
+      '&alpha;',
+      'Fisher &chi;<sup>2</sup>',
+      'Fisher <i>p</i>',
+      'Stouffer Z',
+      'Stouffer <i>p</i>',
+      '# studies',
+      '# sig.')
+    )
+
+#  xtable::xtable(tab, digits = c(0,NA,3,2,4,2,4,0,0)) |>
+#    print(
+#      type = "html", 
+#      print.results = FALSE,
+#      sanitize.text.function = \(x) x,
+#      include.rownames=FALSE,
+#      html.table.attributes = paste0('class="',class,'"')
+#    )
+}
+
+pval_cut_class = function(x, breaks = c(-Inf,0,.05,.1,Inf), labels = c('pnon','psignificant','pmarginal','pnon')){
+  cut(x, breaks = breaks, labels = labels )|> as.character()
+}
+
+pval_style = function(x, ...){
+  class = pval_cut_class(x, ...)
+  x =prettyNum(x, digits = 4)
+  paste0('<div class="pvaltab ',class,'">',x,'</div>')
+}
+
+expString <- function(x){
+  if(is.na(x)) return("NA")
+  doubleBase = .Machine$double.base
+  toBase10log = x / log(10)
+  toBaselog = x / log(doubleBase)
+
+  numMax = .Machine$double.max.exp
+  numMin = .Machine$double.min.exp
+
+  if(toBaselog>numMax){
+    first <- prettyNum( 10 ^ (toBase10log - floor(toBase10log)) )
+    second <- prettyNum( floor(toBase10log) )
+    return( paste( first, "e+", second, sep="" ) )
+  }else if(toBaselog < numMin){
+    first <- prettyNum( 10 ^ (1 - (ceiling(toBase10log) - toBase10log)) )
+    second <- prettyNum( ceiling(toBase10log)-1 )
+    return( paste( first, "e", second, sep="" ) )
+  }else{
+    return( prettyNum( exp(x) ) )
+  }
+}
+
+
+make_plot_data = function(prep_df,alphaBound = .05, conf = .9){
+  prep_df = prep_df[prep_df$lp<log(alphaBound),]
+  prep_df = prep_df[order(prep_df$lp),]
+  k = nrow(prep_df)
+  if(k == 0){ 
+    plotdata = data.frame()
+  }else{
+    pval = exp(prep_df$lp)
+    p_string = sapply(prep_df$lp, expString)
+    Fp     = 1:k/k
+    lo = qbeta((1-conf)/2,1:k,k-1:k+1)*.05
+    up = qbeta(1-(1-conf)/2,1:k,k-1:k+1)*.05
+    med = qbeta(.5,1:k,k-1:k+1)*.05
+    geo_mean = 10^(sum(log10(pval))/k)
+    geo_mean_lo =  10^((qchisq((1-conf)/2,2*k) - 2*k*log(alphaBound)) / (-2*k/log10(exp(1))))
+    geo_mean_up =  10^((qchisq(1-(1-conf)/2,2*k) - 2*k*log(alphaBound)) / (-2*k/log10(exp(1))))
+    plotdata = data.frame(
+      pval = pval,
+      p_string = p_string,
+      Fp = Fp,
+      lo = lo,
+      med = med,
+      up = up,
+      comment = prep_df$comment,
+      input_string = prep_df$string,
+      line = prep_df$line
+    )
+    assign("plotdata2",c(geo_mean,geo_mean_lo,geo_mean_up),.GlobalEnv)
+  }
+  assign("plotdata", plotdata, .GlobalEnv)
+  return(plotdata)
+ }
+
