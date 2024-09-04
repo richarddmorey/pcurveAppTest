@@ -7,6 +7,7 @@ This is a p curve app meant to support Morey and Davis-Sober's paper "On the sta
 * Improved transparency through the ability to comment test statistics (e.g. by labelling lines with the source of the test statistic)
 * Improved transparency through comments around the test statistics, because the app gracefully ignores non-test statistics
 * Improved transparency and reproducibility through being able to save and link to analyses
+* Improved transparency as both test and data tables can be saved as CSV files
 * Improved visualization
 * Improved value in demonstrations, as analysis updates on the fly
 * Improved p curve code (e.g., doesn't truncate p values to 2.2e-16)
