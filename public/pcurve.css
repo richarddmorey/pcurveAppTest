@@ -29,8 +29,16 @@ dd {
   display: none;
 }
 
-.section img.appfig {
-  width: 80%;
+details {
+  padding: 10px;
+  background-color: SeaShell;
+  border-radius: 5px;
+  border: 1px solid black;
+}
+
+
+details img.appfig {
+  width: 60%;
   display: block;
   margin-left: auto;
   margin-right: auto;
@@ -39,7 +47,10 @@ dd {
   padding: 10px;
   background-color: white;
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
 
+summary::before {
+   content: "\24D8 "; 
 }
 
 #loadingoverlay {

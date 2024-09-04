@@ -70,6 +70,21 @@ chi2(2)=8.74 # Study 8
             <p>
               <button onclick="downloadSVG();" class="btn btn-dark">Save as PDF</button>
             </p>
+            <details>
+              <summary> Help for <i>Plot</i> tab</summary>
+                <h4>Plot</h4>
+               <p>
+                The plot shows the empirical cumulative distribution of the p values of the significant (at 0.05) test statistics entered into the app. Note that for clarity the x axis is logarithmic. The figure also shows what would be expected if the p values were independent draws from a uniform distribution.
+              </p>
+              <img src="pcurve_app_figure_wm.png" class="appfig" />
+              <ol type="a">
+                <li>Each point represents a study entered into the textbox. Move you mouse over a point to get information about that point. Each point is treated as an order statistic.
+                <li>The light blue ribbon represents the 90% interval (5%-95%) in which the corresponding order statistic (e.g. the third smallest p value if the point is the third from the bottom) would be expected to be found if the distribution of p values were uniform. Note that this interval is point-wise, and not simultaneous (that is: there is a 90% probability that each point is within the ribbon, not that all points are within the ribbon). Note also that order statistics are not independent (so the probability that more than one is outside the ribbon, even given a uniform distribution, may be larger than one would expect). 
+                <li>The dark blue line within the ribbon represents the median for the corresponding order statistic if the distribution of p values were uniform.
+                <li>The purple diamond represents the geometric mean of all the significant p values entered into the app.
+                <li>The light blue band represents the 90% interval (5%-95%) within which the geometric mean p value would be expected to be found if the distribution of p values were uniform. This is a form of Fisher's meta-analytic test conditioned on significance (that is, Simonsohn et al's 2014 test for "evidential value"); if the diamond is to the left of this band, this test is significant at the 5% level.
+              </ol>
+            </details>
           </div>          
           <div class="section" id="tests">
             <h3 class="title">Tests</h3>
@@ -83,6 +98,31 @@ chi2(2)=8.74 # Study 8
             <p>
               <button onclick="download_table_as_csv('#table1 table', 'pcurve_tests');" class="btn btn-dark">Save table as CSV</button>
             </p>
+            <details>
+              <summary> Help for <i>Tests</i> tab</summary>
+                <h4>Tests</h4>
+                <p>
+                  The tests table contains the results of the various p curve tests that Simonsohn et al have developed. Each column is described below. We do not show the half p-curve tests by default, for reasons that are explained in our paper. Click the "Include half p-curves?" check box to show them.
+                </p>
+                <dl>
+                  <dt>Test</dt>
+                  <dd>"EV" refers to Simonsohn et al's "evidential value" or "right skew" test; "LEV" refers to their "lack of evidential value" or "flatter than 33% power" test.</dd>
+                  <dt>α</dt>
+                  <dd>α (alpha) represents the critical boundary chosen for the test. 0.05 is their "full" p-curve; 0.025 is their "half" p curve.</dd>
+                  <dt>Fisher χ2</dt>
+                  <dd>The χ2 test statistic for Simonsohn et al's (2014) p curve test using a log transformation on the scaled p values (Fisher's method). The test statistic has 2k degrees of freedom, where k is the number of significant studies.</dd>
+                  <dt>Fisher p</dt>
+                  <dd>The p value corresponding to the Fisher χ2 test statistic.</dd>
+                  <dt>Stouffer Z</dt>
+                  <dd>The Z test statistic for Simonsohn et al's (2015) p curve test using a probit transformation on the scaled p values (Stouffer's method).</dd>
+                  <dt>Stouffer p</dt>
+                  <dd>The p value corresponding to the Stouffer Z test statistic.</dd>
+                  <dt># studies</dt>
+                  <dd>The total number of test statistics detected in the input.</dd>
+                  <dt># sig.</dt>
+                  <dd>The number of studies significant at the α-level in the α column.</dd>
+                </dl>
+              </details>
           </div>
           <div class="section" id="data">
             <h3 class="title">Data table</h3>
@@ -90,6 +130,33 @@ chi2(2)=8.74 # Study 8
             <p>
               <button onclick="download_table_as_csv('#table2 table', 'pcurve_data');" class="btn btn-dark">Save table as CSV</button>
             </p>
+            <details>
+              <summary>
+                Help for <i>Data table</i> tab
+              </summary>
+                <h4>Data table</h4>
+                <p>
+                  The data table shows all the test statistics detected in the input.
+                </p>
+                <dl>
+                  <dt>Line</dt>
+                  <dd>The line number of the input on which that statistic was found.</dd>
+                  <dt>Input</dt>
+                  <dd>The test statistic entered on this line of the input.</dd>
+                  <dt>Comment</dt>
+                  <dd>The comment given for that test statistic (entered after a hash (<code>#</code> on that input row).</dd>
+                  <dt>p</dt>
+                  <dd>The recomputed p value for the entered test statistic.</dd>
+                  <dt>Sig.?</dt>
+                  <dd>Is the p value in this row significant at 0.05? ✅ means p&lt;0.05, and hence the value will be included in the full p-curve; ❌ means p≥0.05, and hence the value will not be included.</dd>
+                  <dt>Fisher</dt>
+                  <dd>The contribution of that row's test statistic to the overall Fisher's χ2 statistic. The sum of this column is the total χ2 statistic in the tests table (within rounding error).</dd>
+                  <dt>Stouffer</dt>
+                  <dd>The contribution of that row's test statistic to the overall Stouffer's Z statistic. The sum of this column is the total Z statistic in the tests table (within rounding error).</dd>
+                  <dt>LEV NCP</dt>
+                  <dd>The noncentrality parameter used for the full p-curve LEV test ("lack of evidential value", or "flatter than 33% power") for the test statistic in that row; i.e. the distribution of the test statistic that would yield a 1/3 probability of significance at 0.05.</dd>
+              </dl>
+            </details>
           </div>
           <div class="section" id="help">
             <h3 class="title">Help</h3>
@@ -121,63 +188,6 @@ chi2(2)=8.74 # Study 8
               <p>
                 See the <a href="#tab-examples" onclick="document.getElementsByClassName('tab-examples')[0].click()">Examples tab</a> for demonstrations.
               </p>
-            <h4>Plot</h4>
-              <p>
-                The plot shows the empirical cumulative distribution of the p values of the significant (at 0.05) test statistics entered into the app. Note that for clarity the x axis is logarithmic. The figure also shows what would be expected if the p values were independent draws from a uniform distribution.
-              </p>
-              <img src="pcurve_app_figure.png" class="appfig"/>
-              <ol type="a">
-                <li>Each point represents a study entered into the textbox. Move you mouse over a point to get information about that point. Each point is treated as an order statistic.
-                <li>The light blue ribbon represents the 90% interval (5%-95%) in which the corresponding order statistic (e.g. the third smallest p value if the point is the third from the bottom) would be expected to be found if the distribution of p values were uniform. Note that this interval is point-wise, and not simultaneous (that is: there is a 90% probability that each point is within the ribbon, not that all points are within the ribbon). Note also that order statistics are not independent (so the probability that more than one is outside the ribbon, even given a uniform distribution, may be larger than one would expect). 
-                <li>The dark blue line within the ribbon represents the median for the corresponding order statistic if the distribution of p values were uniform.
-                <li>The purple diamond represents the geometric mean of all the significant p values entered into the app.
-                <li>The light blue band represents the 90% interval (5%-95%) within which the geometric mean p value would be expected to be found if the distribution of p values were uniform. This is a form of Fisher's meta-analytic test conditioned on significance (that is, Simonsohn et al's 2014 test for "evidential value"); if the diamond is to the left of this band, this test is significant at the 5% level.
-              </ol>
-            <h4>Tests</h4>
-              <p>
-                The tests table contains the results of the various p curve tests that Simonsohn et al have developed. Each column is described below. We do not show the half p-curve tests by default, for reasons that are explained in our paper. Click the "Include half p-curves?" check box to show them.
-              </p>
-              <dl>
-                <dt>Test</dt>
-                <dd>"EV" refers to Simonsohn et al's "evidential value" or "right skew" test; "LEV" refers to their "lack of evidential value" or "flatter than 33% power" test.</dd>
-                <dt>α</dt>
-                <dd>α (alpha) represents the critical boundary chosen for the test. 0.05 is their "full" p-curve; 0.025 is their "half" p curve.</dd>
-                <dt>Fisher χ2</dt>
-                <dd>The χ2 test statistic for Simonsohn et al's (2014) p curve test using a log transformation on the scaled p values (Fisher's method). The test statistic has 2k degrees of freedom, where k is the number of significant studies.</dd>
-                <dt>Fisher p</dt>
-                <dd>The p value corresponding to the Fisher χ2 test statistic.</dd>
-                <dt>Stouffer Z</dt>
-                <dd>The Z test statistic for Simonsohn et al's (2015) p curve test using a probit transformation on the scaled p values (Stouffer's method).</dd>
-                <dt>Stouffer p</dt>
-                <dd>The p value corresponding to the Stouffer Z test statistic.</dd>
-                <dt># studies</dt>
-                <dd>The total number of test statistics detected in the input.</dd>
-                <dt># sig.</dt>
-                <dd>The number of studies significant at the α-level in the α column.</dd>
-              </dl>
-
-            <h4>Data table</h4>
-              <p>
-                The data table shows all the test statistics detected in the input.
-              </p>
-              <dl>
-                <dt>Line</dt>
-                <dd>The line number of the input on which that statistic was found.</dd>
-                <dt>Input</dt>
-                <dd>The test statistic entered on this line of the input.</dd>
-                <dt>Comment</dt>
-                <dd>The comment given for that test statistic (entered after a hash (<code>#</code> on that input row).</dd>
-                <dt>p</dt>
-                <dd>The recomputed p value for the entered test statistic.</dd>
-                <dt>Sig.?</dt>
-                <dd>Is the p value in this row significant at 0.05? ✅ means p&lt;0.05, and hence the value will be included in the full p-curve; ❌ means p≥0.05, and hence the value will not be included.</dd>
-                <dt>Fisher</dt>
-                <dd>The contribution of that row's test statistic to the overall Fisher's χ2 statistic. The sum of this column is the total χ2 statistic in the tests table (within rounding error).</dd>
-                <dt>Stouffer</dt>
-                <dd>The contribution of that row's test statistic to the overall Stouffer's Z statistic. The sum of this column is the total Z statistic in the tests table (within rounding error).</dd>
-                <dt>LEV NCP</dt>
-                <dd>The noncentrality parameter used for the full p-curve LEV test ("lack of evidential value", or "flatter than 33% power") for the test statistic in that row; i.e. the distribution of the test statistic that would yield a 1/3 probability of significance at 0.05.</dd>
-              </dl>
           </div>
           <div class="section" id="examples">
             <h3 class="title">Examples</h3>
