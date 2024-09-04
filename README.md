@@ -15,6 +15,8 @@ This is a p curve app meant to support Morey and Davis-Sober's paper "On the sta
 
 Based on [hrbrmstr](https://rud.is/)'s [WebR + Vite + Glitch: Fully In-browser WebR App Development](https://vite-webr-glitch.glitch.me/) example (see his other [excellent WebR examples](https://rud.is/webr-experiments/) too).
 
+### Deploying your own version
+
 If you fork this repo and deploying your own version, note that the webpage gets copied to the 'build' directory (not the 'dist' directory) so your GitHub Actions script will need to relfect this: e.g:
 
 ```
@@ -24,3 +26,4 @@ If you fork this repo and deploying your own version, note that the webpage gets
           # Upload build folder
           path: './build'
 ```
+Also ensure you change the `base` in `vite.config.js` to reflect your own repository name.
