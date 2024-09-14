@@ -26,7 +26,7 @@ if(urlParams.has('data')){
 }
 
 loadingoverlay.style.display = 'none';
-document.getElementById('TApcurve').disabled = false;
+textInput.disabled = false;
 
 halftoggle.onchange = togglehalf;
 textInput.oninput = findTestStatistics;
