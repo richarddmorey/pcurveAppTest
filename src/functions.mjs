@@ -151,7 +151,8 @@ async function doAnalysis(matchesObj){
     wipeAnalysis();
     return;
   }
-  document.querySelectorAll(".section button").map((x)=>{x.style.display='block'});
+  document.querySelectorAll(".onlynosig").map((x)=>{x.style.display='none'});
+  document.querySelectorAll(".onlysig").map((x)=>{x.style.display='inline-block'});
 
   const fisherdata = await webR.evalR(`plotdata2`);
   updatePlot(d3data, await fisherdata.toArray());
@@ -251,10 +252,11 @@ export async function findTestStatistics(){
 
 function wipeAnalysis(){
   lastString = "";
-  document.querySelectorAll(".section button").map((x)=>{x.style.display='none'});
-  ojsplot.innerHTML = "No significant results entered.";
-  tab.innerHTML = "No significant results entered.";
-  tab2.innerHTML = "No significant results entered.";
+  document.querySelectorAll(".onlysig").map((x)=>{x.style.display='none'});
+  document.querySelectorAll(".onlynosig").map((x)=>{x.style.display='inline-block'});
+  ojsplot.innerHTML = "";
+  tab.innerHTML = "";
+  tab2.innerHTML = "";
 }
 
 async function updatePlot(data,fisher) {

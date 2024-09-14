@@ -2,6 +2,10 @@
   font-size: 75%;
 }
 
+.onlysig {
+  display: none;
+}
+
 #sideNav .navbar-brand {
   min-height: 2em;
 }

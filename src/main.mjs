@@ -33,10 +33,14 @@ textInput.oninput = findTestStatistics;
 
 var textInputTimer;
 textInput.onmousedown = function(){
-    textInputTimer = setTimeout(() => { backdrop.style.display = 'none'; }, 100);
+    textInputTimer = setTimeout(() => { 
+      textInput.style.backgroundColor = "white";
+      backdrop.style.display = "none"; 
+    }, 100);
 };
 textInput.onmouseup = function(){
   if(textInputTimer !== null) clearTimeout(textInputTimer);
+  textInput.style.backgroundColor = "";
   backdropStyle();
 }
 textInput.onscroll = backdropScroll;
