@@ -2,6 +2,10 @@
   font-size: 75%;
 }
 
+#ojs-plot {
+  width: 60%;
+}
+
 .onlysig {
   display: none;
 }
