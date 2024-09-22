@@ -1,6 +1,6 @@
-Live website: https://richarddmorey.github.io/pcurveAppTest
+## Live website: https://richarddmorey.github.io/pcurveAppTest
 
-![p curve demonstration app banner](https://richarddmorey.github.io/pcurveAppTest/og_image.png)
+[![p curve demonstration app banner](https://richarddmorey.github.io/pcurveAppTest/og_image.png)](https://richarddmorey.github.io/pcurveAppTest)
 
 This is a p curve app meant to support Morey and Davis-Sober's paper "On the statistical properties of the p-curve meta-analytic procedure" (in preparation; title subject to change). This app is meant to improve on Simonsohn's app in various ways, including:
 
