@@ -1,4 +1,4 @@
-Demo: https://richarddmorey.github.io/pcurveAppTest
+Live website: https://richarddmorey.github.io/pcurveAppTest
 
 ![p curve demonstration app banner](https://richarddmorey.github.io/pcurveAppTest/og_image.png)
 
