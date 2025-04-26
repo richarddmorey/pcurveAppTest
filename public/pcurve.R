@@ -19,7 +19,6 @@ find_ncp_uniroot_chi2 = function(pr=1/3,alphaBound=0.05,df){
   }
   rt = uniroot(fun,interval = c(0,.9999))$root
   ncp = rt / (1-rt)
-  actual_pr = pchisq(crit, df=df, ncp=ncp, lower.tail = FALSE)
   return(ncp)
 }
 
@@ -114,6 +113,8 @@ pcurve_prep = function(stat, df1, df2, value, comment, line, pr=1/3, alphaBound=
     value = value,
     comment = comment,
     line = line,
+    pr = pr,
+    alphaBound = alphaBound,
     SIMPLIFY = FALSE
   )
   do.call(rbind, args = res)
