@@ -1,5 +1,4 @@
 import { defineConfig } from "vite";
-import rollup from "rollup"
 
 // https://vitejs.dev/config/
 export default defineConfig({
