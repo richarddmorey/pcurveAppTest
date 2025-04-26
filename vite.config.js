@@ -7,12 +7,12 @@ export default defineConfig({
   plugins: [],
   optimizeDeps: {
     esbuildOptions: {
-      target: 'esnext'
+      target: 'es2022'
     }
   },
   build: {
     outDir: "build",
-    target: "esnext"	
+    target: "es2022"	
   },
   server: {
     host:"0.0.0.0",
