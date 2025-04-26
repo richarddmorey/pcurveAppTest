@@ -1,7 +1,7 @@
 {
-  "name": "glitch-hello-webr",
-  "version": "0.0.5",
-  "description": "",
+  "name": "pcurve-app",
+  "version": "0.0.8",
+  "description": "Compute p curve tests in an HTML/JS interface using WebR",
   "type": "module",
   "scripts": {
     "start": "vite",
