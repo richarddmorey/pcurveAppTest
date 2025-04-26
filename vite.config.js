@@ -1,18 +1,18 @@
 import { defineConfig } from "vite";
-import topLevelAwait from "vite-plugin-top-level-await";
 import rollup from "rollup"
 
 // https://vitejs.dev/config/
 export default defineConfig({
   base: "/pcurveAppTest/",
-  plugins: [
-		topLevelAwait({
-			promiseExportName: "__tla",
-			promiseImportName: i => `__tla_${i}`
-		})
-  ],
+  plugins: [],
+  optimizeDeps: {
+    esbuildOptions: {
+      target: 'esnext'
+    }
+  },
   build: {
-    outDir: "build"
+    outDir: "build",
+    target: "esnext"	
   },
   server: {
     host:"0.0.0.0",
