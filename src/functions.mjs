@@ -15,10 +15,16 @@ await webR.evalR(`webr::mount("/my-library", "${window.location.origin}/library.
 await webR.evalR('.libPaths(c(.libPaths(), "/my-library"))')
 */
 
-await webR.installPackages(['knitr', 'memoise']);
-export const webRVersion = await webR.evalRString(`R.version.string`)
-
 const pathname = window.location.pathname.replace("index.html","");
+
+await webR.installPackages(
+  ['knitr', 'memoise'], 
+  { 
+    repos: `${window.location.origin}${pathname}webr/repo/`
+  }
+);
+
+export const webRVersion = await webR.evalRString(`R.version.string`)
 
 console.log(`${window.location.origin}${pathname}pcurve.R`);
 

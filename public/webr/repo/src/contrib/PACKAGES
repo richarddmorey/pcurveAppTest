@@ -1,0 +1,87 @@
+Package: cachem
+Version: 1.1.0
+Imports: rlang, fastmap (>= 1.2.0)
+Suggests: testthat
+License: MIT + file LICENSE
+MD5sum: 7b0c7ac53c8cf240c359e6086e2eca3a
+NeedsCompilation: yes
+
+Package: evaluate
+Version: 1.0.3
+Depends: R (>= 3.6.0)
+Suggests: callr, covr, ggplot2 (>= 3.3.6), lattice, methods, pkgload,
+        rlang, knitr, testthat (>= 3.0.0), withr
+License: MIT + file LICENSE
+MD5sum: 9b06ef5e2b065ed42e64f97691ed1579
+NeedsCompilation: no
+
+Package: fastmap
+Version: 1.2.0
+Suggests: testthat (>= 2.1.1)
+License: MIT + file LICENSE
+MD5sum: 57d5da57781dca83e21fe607eda25bab
+NeedsCompilation: yes
+
+Package: highr
+Version: 0.11
+Depends: R (>= 3.3.0)
+Imports: xfun (>= 0.18)
+Suggests: knitr, markdown, testit
+License: GPL
+MD5sum: 2c25bf6ca8c1cabce21b122106b09b32
+NeedsCompilation: no
+
+Package: knitr
+Version: 1.50
+Depends: R (>= 3.6.0)
+Imports: evaluate (>= 0.15), highr (>= 0.11), methods, tools, xfun (>=
+        0.51), yaml (>= 2.1.19)
+Suggests: bslib, codetools, DBI (>= 0.4-1), digest, formatR, gifski,
+        gridSVG, htmlwidgets (>= 0.7), jpeg, JuliaCall (>= 0.11.1),
+        magick, litedown, markdown (>= 1.3), png, ragg, reticulate (>=
+        1.4), rgl (>= 0.95.1201), rlang, rmarkdown, sass, showtext,
+        styler (>= 1.2.0), targets (>= 0.6.0), testit, tibble,
+        tikzDevice (>= 0.10), tinytex (>= 0.56), webshot, rstudioapi,
+        svglite
+License: GPL
+MD5sum: 135291adff08400d9844264ed77a7344
+NeedsCompilation: no
+
+Package: memoise
+Version: 2.0.1
+Imports: rlang (>= 0.4.10), cachem
+Suggests: digest, aws.s3, covr, googleAuthR, googleCloudStorageR, httr,
+        testthat
+License: MIT + file LICENSE
+MD5sum: 600df70bf430605e3cdc3b5bb7ea0719
+NeedsCompilation: no
+
+Package: rlang
+Version: 1.1.6
+Depends: R (>= 3.5.0)
+Imports: utils
+Suggests: cli (>= 3.1.0), covr, crayon, desc, fs, glue, knitr,
+        magrittr, methods, pillar, pkgload, rmarkdown, stats, testthat
+        (>= 3.2.0), tibble, usethis, vctrs (>= 0.2.3), withr
+Enhances: winch
+License: MIT + file LICENSE
+MD5sum: c5ef2f9b5104c1e5224f71f9c2d09c4d
+NeedsCompilation: yes
+
+Package: xfun
+Version: 0.52
+Depends: R (>= 3.2.0)
+Imports: grDevices, stats, tools
+Suggests: testit, parallel, codetools, methods, rstudioapi, tinytex (>=
+        0.30), mime, litedown (>= 0.4), commonmark, knitr (>= 1.50),
+        remotes, pak, curl, xml2, jsonlite, magick, yaml, qs
+License: MIT + file LICENSE
+MD5sum: d0d302d53f316ba4cabb6060e06d67bd
+NeedsCompilation: yes
+
+Package: yaml
+Version: 2.3.10
+Suggests: RUnit
+License: BSD_3_clause + file LICENSE
+MD5sum: 27e787a230d9189bd05c5008c9a300ab
+NeedsCompilation: yes
