@@ -22,8 +22,5 @@
   ],
   "engines": {
     "node": "20.x"
-  },
-  "glitch": {
-    "projectType": "generated_static"
   }
 }
