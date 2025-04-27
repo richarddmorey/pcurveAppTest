@@ -1,4 +1,30 @@
+#' R functions to support an online p curve app
+#' Richard D. Morey, 2024/2025
+#' Email: richarddmorey@gmail.com
+#' See https://github.com/richarddmorey/pcurveAppTest
 
+#' Find a noncentrality parameter that yields a fixed probability to the right
+#' of a truncation point.
+#' 
+#' The noncentrality parameter is approximated numerically, so some caution is
+#' required in using it (e.g. don't assume that \eqn{Pr(x>t;ncp)=pr)}.
+#' 
+#' Function `find_ncp_uniroot` is a memoised version of this function 
+#' so will be more efficient in repeated calls; it is expected that users 
+#' will opt for `find_ncp_uniroot`.
+#' 
+#' Functions `find_ncp_uniroot_chi2` and `find_ncp_uniroot_f` are helper 
+#' functions that do the actual work for the two possible test statistic types.
+#'
+#' @param Type of test statistic ('chi2' or 'f') 
+#' @param pr Fixed probability to right of truncation point under alternative
+#' @param alphaBound Fixed probability to right of truncation point under null
+#' @param ... Parameters to pass to helper functions (not currently used)
+#'
+#' @returns The noncentrality parameter that yields `pr` probability to the
+#'  right of the truncation point as a numeric value.
+#' @export
+#' 
 find_ncp_uniroot0 = function(family=c('chi2','f'),pr=1/3,alphaBound=0.05,...){
   family = match.arg(family, c('chi2','f'))
   
@@ -11,6 +37,12 @@ find_ncp_uniroot0 = function(family=c('chi2','f'),pr=1/3,alphaBound=0.05,...){
   }
 }
 
+#' @rdname find_ncp_uniroot0
+#' @export 
+find_ncp_uniroot = memoise::memoise(find_ncp_uniroot0)
+
+#' @rdname find_ncp_uniroot0
+#' @export 
 find_ncp_uniroot_chi2 = function(pr=1/3,alphaBound=0.05,df){
   crit = qchisq(alphaBound, lower.tail = FALSE, df=df)
   fun = function(ncp0){
@@ -22,6 +54,8 @@ find_ncp_uniroot_chi2 = function(pr=1/3,alphaBound=0.05,df){
   return(ncp)
 }
 
+#' @rdname find_ncp_uniroot0
+#' @export 
 find_ncp_uniroot_f = function(pr=1/3,alphaBound=0.05,df1,df2){
   crit = qf(alphaBound, lower.tail = FALSE, df1 = df1, df2 = df2)
   fun = function(ncp0){
@@ -33,14 +67,49 @@ find_ncp_uniroot_f = function(pr=1/3,alphaBound=0.05,df1,df2){
   return(ncp)
 }
 
-find_ncp_uniroot = memoise::memoise(find_ncp_uniroot0)
 
+#' Construct a string representation of a statistical result appropriate for 
+#' the p curve app.
+#'
+#' @param stat A test statistic type. Expected to be "z", "t", "f", "r", or 
+#' "chi2" (lower case character vector of length 1)
+#' @param df1 Degrees of freedom; either NA (stat "z"), single (stat "r",
+#' "t", "chi2), or numerator if stat is "f" (numeric vector of length 1)
+#' @param df2 Degrees of freedom for denominator (stat "f") or NA (numeric 
+#' vector of length 1)
+#' @param value The value of the test statistic (numeric vector of length 1)
+#'
+#' @returns A character vector of length 1 
+#' @export
 stat_string = function(stat, df1, df2, value){
     if(stat=='z') return(paste0("Z=",value))
     if(stat=='f') return(paste0("F(",df1,",",df2,")=",value))
     paste0(stat,"(",df1,")=",value)
 }
 
+#' Create a table of values p curve values, ready to compute a p curve analysis.
+#' 
+#' Function `pcurve_prep0` is for single results (so each argument should be
+#' of length 1). `pcurve_prep` is the vectorized version (arguments should be of 
+#' the same length, except pr and alphaBound, which should be of length 1).
+#' 
+#' Function `pcurve_prep0_LEV` computes the log p value for use in the test LEV.
+#' 
+#' @param stat Test statistic ("f","z","t","r", or "chi2")
+#' @param df1 numeric NA (stat "z"), degrees of freedom (for stat "t", "r", or "chi2"; 
+#' numerator df for stat "f") 
+#' @param df2 numeric NA (stat "z", "t", "r", "chi2") or denominator df (stat "f")
+#' @param value test statistic value
+#' @param comment A character string comment (describing the result)
+#' @param line The line number in the analysis from which result was taken
+#' @param pr Probability to be used in test LEV
+#' @param alphaBound alpha to be used for the right truncation value
+#' @param ncp Noncentrality parameter for test LEV
+#' @param ... Not used
+#'
+#' @returns `pcurve_prep0` returns a data frame with one row; `pcurve_prep` 
+#' returns a data frame with one row per element of the first 6 arguments. 
+#' @export
 pcurve_prep0 = memoise::memoise(
   function(stat, df1, df2, value, comment, line, pr = 1/3, alphaBound = .05){
     stat = tolower(stat)
@@ -102,7 +171,9 @@ pcurve_prep0 = memoise::memoise(
         )
       )
   })
-  
+
+#' @rdname pcurve_prep0
+#' @export   
 pcurve_prep = function(stat, df1, df2, value, comment, line, pr=1/3, alphaBound=.05){
   k0 = length(stat)
   res = mapply(
@@ -113,24 +184,30 @@ pcurve_prep = function(stat, df1, df2, value, comment, line, pr=1/3, alphaBound=
     value = value,
     comment = comment,
     line = line,
-    pr = pr,
-    alphaBound = alphaBound,
+    MoreArgs = list(
+      pr = pr,
+      alphaBound = alphaBound
+    ),
     SIMPLIFY = FALSE
   )
   do.call(rbind, args = res)
 }
 
-pcurve_prep0_EV = function(stat, df1, df2, value, alphaBound = 0.05, ...){
-  lp = switch(
-    tolower(stat),
-    chi2 = ifelse(df1>=1 & value >= 0, pchisq(value,df1,lower.tail = FALSE, log.p = TRUE), NaN),
-    f = ifelse(df1>=1 & df2>=1 & value >= 0, pf(value,df1,df2,lower.tail = FALSE, log.p = TRUE), NaN),
-    stop('Unknown stat: ', stat)
-  )
-  return(lp - log(alphaBound))
-}
+# pcurve_prep0_EV = function(stat, df1, df2, value, alphaBound = 0.05, ...){
+#   lp = switch(
+#     tolower(stat),
+#     chi2 = ifelse(df1>=1 & value >= 0, pchisq(value,df1,lower.tail = FALSE, log.p = TRUE), NaN),
+#     f = ifelse(df1>=1 & df2>=1 & value >= 0, pf(value,df1,df2,lower.tail = FALSE, log.p = TRUE), NaN),
+#     stop('Unknown stat: ', stat)
+#   )
+#   return(lp - log(alphaBound))
+# }
 
-pcurve_prep0_LEV = memoise::memoise(function(stat, df1, df2, value, ncp, alphaBound = 0.05,...){
+
+#' @rdname pcurve_prep0
+#' @export  
+pcurve_prep0_LEV = memoise::memoise(
+  function(stat, df1, df2, value, ncp, alphaBound = 0.05,...){
   stat = tolower(stat)
   if(stat == 'f'){
     if(df1<1 | df2<1 | value < 0) return(NaN)
@@ -142,6 +219,8 @@ pcurve_prep0_LEV = memoise::memoise(function(stat, df1, df2, value, ncp, alphaBo
     if(df1<1 | value < 0) return(NaN)
     crit = qchisq(alphaBound, df1, lower.tail = FALSE)
     if(value<crit) return(NaN)
+    # We recompute the LEV probability to prevent a bug that 
+    # yields negative p values for some ncp values (due to the optimization)
     actual_pr = pchisq(crit,df1,ncp=ncp,lower.tail = FALSE)
     lp = log((pchisq(value,df1,ncp) - (1-actual_pr))/actual_pr)
   }else{
@@ -150,24 +229,20 @@ pcurve_prep0_LEV = memoise::memoise(function(stat, df1, df2, value, ncp, alphaBo
   return(lp)
 })
 
-pcurve_all = function(prep_table){
-  s = expand.grid(alphaBound=c(.05,.025), test = c("EV","LEV"), stringsAsFactors=FALSE)
-  res = mapply(FUN = pcurve, 
-    test = s$test, alphaBound = s$alphaBound,
-    MoreArgs = list(prep_table = prep_table),
-    SIMPLIFY = FALSE
-    ) 
-  tests = lapply(res, \(el) el$tests)
-  prep_table2 = res[[which(s$test == 'EV' & s$alphaBound == 0.05)]]$prep_table
-
-  x = do.call(rbind, tests)
-  rownames(x) = NULL
-  return(list(
-    prep_table = prep_table2,
-    tests = x
-  ))
-}
-
+#' Compute p curve tests from a table of values
+#' 
+#' Given a table of values (as output from function `pcurve_prep`), compute all 
+#' pcurve tests. Function `pcurve` takes data frame with ONE row as input; function 
+#' `pcurve_all` is vectorized over rows. 
+#'
+#' @param prep_table Data frame from `pcurve_prep` (single row for `pcurve`, 
+#' whole data frame for `pcurve_all`)
+#' @param alphaBound alpha for left truncation value
+#' @param test The test to perform (either EV or LEV).
+#'
+#' @returns Returns a list containing two elements: `prep_table` which is the function 
+#' input, and `tests` which is a data frame containing the test results.
+#' @export
 pcurve = function(prep_table, alphaBound = 0.05, test = c("EV","LEV")){
   test = match.arg(test, c("EV","LEV"))
   prep_table$significant = prep_table$lp < log(alphaBound)
@@ -225,6 +300,37 @@ pcurve = function(prep_table, alphaBound = 0.05, test = c("EV","LEV")){
   return(list(prep_table = prep_table, tests = tests))
 }
 
+#' @rdname pcurve
+#' @export  
+pcurve_all = function(prep_table){
+  s = expand.grid(alphaBound=c(.05,.025), test = c("EV","LEV"), stringsAsFactors=FALSE)
+  res = mapply(FUN = pcurve, 
+               test = s$test, alphaBound = s$alphaBound,
+               MoreArgs = list(prep_table = prep_table),
+               SIMPLIFY = FALSE
+  ) 
+  tests = lapply(res, \(el) el$tests)
+  prep_table2 = res[[which(s$test == 'EV' & s$alphaBound == 0.05)]]$prep_table
+  
+  x = do.call(rbind, tests)
+  rownames(x) = NULL
+  return(list(
+    prep_table = prep_table2,
+    tests = x
+  ))
+}
+
+
+#' Create nice tables for website display
+#'
+#' @param prep_table A data frame from `pcurve_prep`
+#' @param pvalcols A vector indicating which columns contain p values for formatting
+#' @param prep_class A css class for the prep table of statistics 
+#' @param test_class  A css class for the table of test results
+#'
+#' @returns A character vector containing two formatted HTML tables, one for
+#' the test statistics and one for the test results.
+#' @export
 make_tables = function(prep_table, pvalcols = c(), prep_class, test_class){
   pc = pcurve_all(prep_table)
   tests = pc[['tests']]
@@ -235,6 +341,18 @@ make_tables = function(prep_table, pvalcols = c(), prep_class, test_class){
   ))
 }
 
+#' Create nicely-formatted prep (test statistic) HTML table
+#'
+#' This function uses the `prep_table` element from the output of `pcurve_all`
+#' to create a nicely-formatted HTML table (using `knitr::kable`). Each element 
+#' of the `tab` argument is a row of the table (one test statistic).
+#'
+#' @param tab A list of rows of the `prep_table` element of `pcurve_all`
+#' @param class A css class to apply to the table
+#'
+#' @returns A character vector of length 1 containing an HTML table.
+#' @importFrom knitr::kable
+#' @export
 xtab_prep = function(tab, class){
   tab$p = sapply(tab$lp, expString)
   tab$sig = tab$lp < log(.05)
@@ -260,6 +378,18 @@ xtab_prep = function(tab, class){
 }
   
 
+#' Create a nicely-formatted table of p curve results
+#'
+#' This function uses the `tests` element from the output of `pcurve_all`
+#' to create a nicely-formatted HTML table (using `knitr::kable`). 
+#' 
+#' @param tab A data frame of p curve test results 
+#' @param pvalcols Names of columns that represent p values (for formatting) 
+#' @param class A css class to apply to the table
+#'
+#' @returns A character vector of length one containing an HTML table
+#' @importFrom knitr::kable
+#' @export
 xtab_tests = function(tab, pvalcols = c(), class){
   for(col in pvalcols){
     tab[,col] = pval_style(tab[,col])
@@ -279,27 +409,46 @@ xtab_tests = function(tab, pvalcols = c(), class){
       '# studies',
       '# sig.')
     )
-
-#  xtable::xtable(tab, digits = c(0,NA,3,2,4,2,4,0,0)) |>
-#    print(
-#      type = "html", 
-#      print.results = FALSE,
-#      sanitize.text.function = \(x) x,
-#      include.rownames=FALSE,
-#      html.table.attributes = paste0('class="',class,'"')
-#    )
 }
 
+#' Categorize p values by size for table formatting
+#'
+#' @param x Vector of p values
+#' @param breaks Breaks for the categories
+#' @param labels Labels for th categories
+#'
+#' @returns A character vector of categories of the p values. These categories will
+#' be used as css classes for formatting.
+#' @export
 pval_cut_class = function(x, breaks = c(-Inf,0,.05,.1,Inf), labels = c('pnon','psignificant','pmarginal','pnon')){
-  cut(x, breaks = breaks, labels = labels )|> as.character()
+  cut(x, breaks = breaks, labels = labels ) |> as.character()
 }
 
+#' Style p values
+#' 
+#' This function takes a vector of p values applies styling based on the
+#' size of the p value.
+#'
+#' @param x Vector of p values
+#' @param ... Arguments to pass to `pval_cut_class`
+#'
+#' @returns A character vector of HTML divs containing styled p values
+#' @export
 pval_style = function(x, ...){
   class = pval_cut_class(x, ...)
-  x =prettyNum(x, digits = 4)
+  x = prettyNum(x, digits = 4)
   paste0('<div class="pvaltab ',class,'">',x,'</div>')
 }
 
+#' Create a character representation from a logarithmic value
+#' 
+#' Computes a nicely-formatted character representation of `exp(x)` 
+#' while preventing numerical overflow issues
+#'
+#' @param x Numerical value (the logarithm of a number)
+#'
+#' @returns A character vector
+#' @export
 expString <- function(x){
   if(is.na(x)) return("NA")
   doubleBase = .Machine$double.base
@@ -323,36 +472,50 @@ expString <- function(x){
 }
 
 
-make_plot_data = function(prep_df,alphaBound = .05, conf = .9){
-  prep_df = prep_df[prep_df$lp<log(alphaBound),]
-  prep_df = prep_df[order(prep_df$lp),]
-  k = nrow(prep_df)
-  if(k == 0){ 
-    plotdata = data.frame()
-  }else{
-    pval = exp(prep_df$lp)
-    p_string = sapply(prep_df$lp, expString)
-    Fp     = 1:k/k
-    lo = qbeta((1-conf)/2,1:k,k-1:k+1)*.05
-    up = qbeta(1-(1-conf)/2,1:k,k-1:k+1)*.05
-    med = qbeta(.5,1:k,k-1:k+1)*.05
-    geo_mean = 10^(sum(log10(pval))/k)
-    geo_mean_lo =  10^((qchisq((1-conf)/2,2*k) - 2*k*log(alphaBound)) / (-2*k/log10(exp(1))))
-    geo_mean_up =  10^((qchisq(1-(1-conf)/2,2*k) - 2*k*log(alphaBound)) / (-2*k/log10(exp(1))))
-    plotdata = data.frame(
-      pval = pval,
-      p_string = p_string,
-      Fp = Fp,
-      lo = lo,
-      med = med,
-      up = up,
-      comment = prep_df$comment,
-      input_string = prep_df$string,
-      line = prep_df$line
-    )
-    assign("plotdata2",c(geo_mean,geo_mean_lo,geo_mean_up),.GlobalEnv)
+#' Create table data appropriate for passing to d3.js ECDF
+#' 
+#' This function is used for the ECDF function in the app. It takes the
+#' information in the prep table, computes some important values, and 
+#' formats it so that it can be used in the plot.
+#'
+#' @param prep_df Prep table as computed by `pcurve_prep`
+#' @param alphaBound Value used for right truncation of test statistics
+#' @param conf Confidence level for order statistic bounds and log-based test
+#'
+#' @returns Data frame containing plot data
+#' @export
+make_plot_data = memoise::memoise(
+  function(prep_df,alphaBound = .05, conf = .9){
+    prep_df = prep_df[prep_df$lp<log(alphaBound),]
+    prep_df = prep_df[order(prep_df$lp),]
+    k = nrow(prep_df)
+    if(k == 0){ 
+      plotdata = data.frame()
+    }else{
+      pval = exp(prep_df$lp)
+      p_string = sapply(prep_df$lp, expString)
+      Fp     = 1:k/k
+      lo = qbeta((1-conf)/2,1:k,k-1:k+1)*.05
+      up = qbeta(1-(1-conf)/2,1:k,k-1:k+1)*.05
+      med = qbeta(.5,1:k,k-1:k+1)*.05
+      geo_mean = 10^(sum(log10(pval))/k)
+      geo_mean_lo =  10^((qchisq((1-conf)/2,2*k) - 2*k*log(alphaBound)) / (-2*k/log10(exp(1))))
+      geo_mean_up =  10^((qchisq(1-(1-conf)/2,2*k) - 2*k*log(alphaBound)) / (-2*k/log10(exp(1))))
+      plotdata = data.frame(
+        pval = pval,
+        p_string = p_string,
+        Fp = Fp,
+        lo = lo,
+        med = med,
+        up = up,
+        comment = prep_df$comment,
+        input_string = prep_df$string,
+        line = prep_df$line
+      )
+      assign("plotdata2",c(geo_mean,geo_mean_lo,geo_mean_up),.GlobalEnv)
+    }
+    assign("plotdata", plotdata, .GlobalEnv)
+    return(plotdata)
   }
-  assign("plotdata", plotdata, .GlobalEnv)
-  return(plotdata)
- }
+)
 
