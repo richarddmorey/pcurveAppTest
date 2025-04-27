@@ -26,14 +26,15 @@ await webR.installPackages(
 
 export const webRVersion = await webR.evalRString(`R.version.string`)
 
-console.log(`${window.location.origin}${pathname}pcurve.R`);
-
 await webR.evalR(`tf = tempfile();download.file('${window.location.origin}${pathname}pcurve.R',tf);source(tf)`);
 
 const pcurve = await webR.evalR('\\(stat,df1,df2,value,comment,line) make_tables(pcurve_prep(stat,df1,df2,value,comment,line), pvalcols = c("pval_log","pval_probit"), prep_class = "table", test_class="pcurvetab")');
-const pplot = await webR.evalR('\\(stat,df1,df2,value,comment,line) make_plot_data(pcurve_prep(stat,df1,df2,value,comment,line))');
 
-
+// The next two lines are done in two parts to get the conversion to the proper types in each call.
+// The make_plot_data function is memoised so that it doesn't take any extra time
+// for the second call.
+const pplot1 = await webR.evalR('\\(stat,df1,df2,value,comment,line) make_plot_data(pcurve_prep(stat,df1,df2,value,comment,line))[["plotdata"]]');
+const pplot2 = await webR.evalR('\\(stat,df1,df2,value,comment,line) make_plot_data(pcurve_prep(stat,df1,df2,value,comment,line))[["plotdata2"]]');
 
 var lastString = "";
 
@@ -143,7 +144,7 @@ async function doAnalysis(matchesObj){
     return;
   }
   
-  await pplot(
+  const plotdata = await pplot1.exec(
     matchesObj.stat,
     matchesObj.df1,
     matchesObj.df2,
@@ -151,7 +152,6 @@ async function doAnalysis(matchesObj){
     matchesObj.comment,
     matchesObj.line
     );
-  const plotdata = await webR.evalR(`plotdata`);
   const d3data = await plotdata.toD3();
   if(d3data.length == 0){
     wipeAnalysis();
@@ -160,7 +160,14 @@ async function doAnalysis(matchesObj){
   document.querySelectorAll(".onlynosig").map((x)=>{x.style.display='none'});
   document.querySelectorAll(".onlysig").map((x)=>{x.style.display='inline-block'});
 
-  const fisherdata = await webR.evalR(`plotdata2`);
+  const fisherdata = await pplot2.exec(
+    matchesObj.stat,
+    matchesObj.df1,
+    matchesObj.df2,
+    matchesObj.value,
+    matchesObj.comment,
+    matchesObj.line
+    );
   updatePlot(d3data, await fisherdata.toArray());
 
   

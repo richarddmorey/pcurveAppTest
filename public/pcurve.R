@@ -471,8 +471,7 @@ expString <- function(x){
   }
 }
 
-
-#' Create table data appropriate for passing to d3.js ECDF
+#' Create table data appropriate for passing to d3.js (for ECDF plot)
 #' 
 #' This function is used for the ECDF function in the app. It takes the
 #' information in the prep table, computes some important values, and 
@@ -482,7 +481,11 @@ expString <- function(x){
 #' @param alphaBound Value used for right truncation of test statistics
 #' @param conf Confidence level for order statistic bounds and log-based test
 #'
-#' @returns Data frame containing plot data
+#' @returns A list containing two elements: the first is a data frame 
+#' containing the main plot data,and the second element is a numeric 
+#' vector containing the extra information to plot the test EV 
+#' results (currently, at the bottom of the ECDF plot).
+#' 
 #' @export
 make_plot_data = memoise::memoise(
   function(prep_df,alphaBound = .05, conf = .9){
@@ -491,6 +494,7 @@ make_plot_data = memoise::memoise(
     k = nrow(prep_df)
     if(k == 0){ 
       plotdata = data.frame()
+      plotdata2 = c()
     }else{
       pval = exp(prep_df$lp)
       p_string = sapply(prep_df$lp, expString)
@@ -512,10 +516,14 @@ make_plot_data = memoise::memoise(
         input_string = prep_df$string,
         line = prep_df$line
       )
-      assign("plotdata2",c(geo_mean,geo_mean_lo,geo_mean_up),.GlobalEnv)
+      plotdata2 = c(geo_mean,geo_mean_lo,geo_mean_up)
     }
-    assign("plotdata", plotdata, .GlobalEnv)
-    return(plotdata)
+    return(
+      list(
+        plotdata  = plotdata,
+        plotdata2 = plotdata2
+        )
+    )
   }
 )
 
