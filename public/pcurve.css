@@ -167,3 +167,30 @@ textarea.TApcurve:disabled {
   visibility: visible;
   opacity: 1;
 }
+
+@keyframes wiggle1 {
+    75% {
+        transform: rotate(0deg);
+    }
+    80% {
+        transform: rotate(5deg);
+    }
+    85% {
+        transform: rotate(-6deg);
+    }
+    90% {
+        transform: rotate(5deg);
+    }
+    95% {
+        transform: rotate(-6deg);
+    }
+    100% {
+        transform: rotate(5deg);
+    }
+}
+
+.wiggle1 {
+  display: inline-block;
+  animation: wiggle1 2s 2;
+  animation-delay: 2s;
+}
