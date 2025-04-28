@@ -59,15 +59,20 @@ chi2(2)=8.74 # Study 8</textarea>
                     <!--Holding div for simplified analysis text-->
                     <textarea style="display:none" id="simpletext"></textarea>
                     <input id="displayurl" />
+                    <div>
                     <div class="tooltip0">
-                    <button onclick="copyurl()" onmouseout="tooltipOut()" type="button" class="btn btn-dark">
-                        <span class="tooltiptext" id="myTooltip">Click to copy link to analysis to your clipboard</span>
-                        Copy link
-                    </button>
+                        <button onclick="copyurl()" onmouseout="tooltipOut()" type="button" class="btn btn-dark">
+                        <span class="tooltiptext" id="myTooltip">Copy link to analysis to your clipboard</span>
+                        📋 Link
+                        </button>
                     </div>
-                    <button onclick="copysimple()" type="button" class="btn btn-dark">
-                    Copy simple text
-                    </button>
+                    <div class="tooltip0">
+                        <button onclick="copysimple()" type="button" class="btn btn-dark">
+                        <span class="tooltiptext" id="myTooltip2">Copy simplified text for Simonsohn et al's app to your clipboard</span>
+                        📋 Text
+                        </button>
+                    </div>
+                    </div>
                 </div>
             </div>
         </nav>
@@ -109,13 +114,13 @@ chi2(2)=8.74 # Study 8</textarea>
                     line-specific comment and highlighted in blue. You can use this to label specific test statistics; for instance, to note what study they've been taken from. The comments will be shown in the plot and in the data table.
                   </p>
                   <p>
-                    You can also click the "Copy link" button at the top of the page to obtain a link that will
+                    You can also click the "📋 Link" button at the top of the page to obtain a link that will
                     point back to the current analysis. The link will be copied to your clipboard.
                   </p>
                   <p>
                     If you would like to copy a simplified version of the analysis text for pasting into 
                     <a target="_blank" href="https://www.p-curve.com/app4/">Simonsohn et al's app</a>, click the 
-                    "Copy simple text" button below the analysis text area. This removes all comments 
+                    "📋 Text" button below the analysis text area. This removes all comments 
                     and copies the simplified analysis to your clipboard.
                   </p>
                   <p>
@@ -409,7 +414,7 @@ chi2(2)=8.74 # Study 8</textarea>
             
             function tooltipOut() {
               var tooltip = document.getElementById("myTooltip");
-              tooltip.innerHTML = "Click to copy link to analysis to your clipboard";
+              tooltip.innerHTML = "Copy link to analysis to your clipboard";
             }
               
             function copysimple() {

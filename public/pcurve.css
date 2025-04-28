@@ -144,6 +144,7 @@ textarea.TApcurve:disabled {
   position: relative;
   display: inline-block;
   margin: 10px;
+  float: left;
 }
 
 .tooltip0 .tooltiptext {
