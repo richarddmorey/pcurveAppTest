@@ -27,6 +27,11 @@ if(urlParams.has('data')){
 
 loadingoverlay.style.display = 'none';
 textInput.disabled = false;
+[...document.getElementsByClassName("wiggle1")].forEach(
+    (el) => {
+      el.style.animationPlayState="running";
+    });
+
 
 halftoggle.onchange = togglehalf;
 textInput.oninput = findTestStatistics;

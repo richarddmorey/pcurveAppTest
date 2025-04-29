@@ -173,28 +173,29 @@ textarea.TApcurve:disabled {
 }
 
 @keyframes wiggle1 {
-    75% {
+     5% {
+        transform: rotate(5deg);
+    }
+    10% {
+        transform: rotate(-6deg);
+    }
+    15% {
+        transform: rotate(5deg);
+    }
+    20% {
+        transform: rotate(-6deg);
+    }
+    25% {
+        transform: rotate(5deg);
+    }
+    30% {
         transform: rotate(0deg);
-    }
-    80% {
-        transform: rotate(5deg);
-    }
-    85% {
-        transform: rotate(-6deg);
-    }
-    90% {
-        transform: rotate(5deg);
-    }
-    95% {
-        transform: rotate(-6deg);
-    }
-    100% {
-        transform: rotate(5deg);
     }
 }
 
 .wiggle1 {
   display: inline-block;
   animation: wiggle1 2s 2;
-  animation-delay: 2s;
+  animation-delay: 1s;
+  animation-play-state: paused;
 }
