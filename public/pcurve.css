@@ -1,5 +1,8 @@
 #status-message {
   font-size: 75%;
+  display: inline-block;
+  width: 340px;
+  overflow: visible;
 }
 
 #ojs-plot {
