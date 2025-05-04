@@ -41,13 +41,15 @@ textInput.oninput = findTestStatistics;
  * highlighting in the input textarea is accomplished by an 
  * elaborate trick whereby the actual textarea is transparent,
  * and a matching "backdrop" is shown with identical text (that
- * can be styled). However, this does not play nice with copy/paste
- * highlighting in the actual textarea.
+ * can be styled). However, this does not play nice with resizing 
+ * the textArea
  * 
- * The two events below ensure that when text in the textarea is
- * highlighted (or, actually, when the mouse button is pressed) the
+ * The two events below ensure that when textArea is resized
+ * (or, actually, when the mouse button is pressed) the
  * highlighting is "turned off" (really, the textarea is displayed
- * instead of the backdrop).
+ * instead of the backdrop). The backdrop is turned back on when the 
+ * mouse button is released. The timer ensures that it only happens
+ * if the mouse is held for more than 100ms.
  */
 var textInputTimer;
 textInput.onmousedown = function(){
@@ -61,6 +63,7 @@ textInput.onmouseup = function(){
   textInput.style.backgroundColor = "";
   backdropStyle();
 }
+// Ensure the backdrop scrolls with the input textArea
 textInput.onscroll = backdropScroll;
 
 // Look in the input textarea to see if there is a valid analysis
