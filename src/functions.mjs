@@ -9,12 +9,6 @@ import { WebR } from 'webr';
 const webR = new WebR();
 await webR.init();
 
-
-/*
-await webR.evalR(`webr::mount("/my-library", "${window.location.origin}/library.data")`)
-await webR.evalR('.libPaths(c(.libPaths(), "/my-library"))')
-*/
-
 const pathname = window.location.pathname.replace("index.html","");
 
 await webR.installPackages(
