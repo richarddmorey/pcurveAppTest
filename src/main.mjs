@@ -1,7 +1,6 @@
 
 const statusMessage = document.getElementById("status-message")
-statusMessage.innerHTML =
-  (crossOriginIsolated ? "🟢" : "🌕") + " WebR Loading…"
+statusMessage.innerHTML = (crossOriginIsolated ? "🟢" : "🌕") + " WebR Loading…"
 
 import { Base64 } from 'js-base64';
 
@@ -14,7 +13,7 @@ const halftoggle= document.getElementById("halftoggle");
 const loadingoverlay = document.getElementById("loadingoverlay");
 const textInput = document.getElementById("TApcurve");
 
-
+// Decode the data in the query string to load a saved analysis
 const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
 if(urlParams.has('data')){
@@ -25,6 +24,7 @@ if(urlParams.has('data')){
   }
 }
 
+// Remove the loading overlay and "wiggle" the help button to attract attention
 loadingoverlay.style.display = 'none';
 textInput.disabled = false;
 [...document.getElementsByClassName("wiggle1")].forEach(
@@ -32,10 +32,23 @@ textInput.disabled = false;
       el.style.animationPlayState="running";
     });
 
-
+// Set important events
 halftoggle.onchange = togglehalf;
 textInput.oninput = findTestStatistics;
 
+/* Because text in textareas can't be easily styled automatically
+ * (hence we can't highlight it based on the input), the text 
+ * highlighting in the input textarea is accomplished by an 
+ * elaborate trick whereby the actual textarea is transparent,
+ * and a matching "backdrop" is shown with identical text (that
+ * can be styled). However, this does not play nice with copy/paste
+ * highlighting in the actual textarea.
+ * 
+ * The two events below ensure that when text in the textarea is
+ * highlighted (or, actually, when the mouse button is pressed) the
+ * highlighting is "turned off" (really, the textarea is displayed
+ * instead of the backdrop).
+ */
 var textInputTimer;
 textInput.onmousedown = function(){
     textInputTimer = setTimeout(() => { 
@@ -50,7 +63,8 @@ textInput.onmouseup = function(){
 }
 textInput.onscroll = backdropScroll;
 
-
+// Look in the input textarea to see if there is a valid analysis
 findTestStatistics();
+// Ensure that the backdrop scroll (that controls the highlighting in the input textarea) matches the input textarea
 backdropScroll();
 
