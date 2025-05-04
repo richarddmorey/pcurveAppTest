@@ -1,3 +1,7 @@
+/*
+* Javascript functions to make the p curve app work
+* Richard D. Morey, 2024
+*/
 
 NodeList.prototype.map = Array.prototype.map;
 
@@ -5,10 +9,12 @@ import { Base64 } from 'js-base64';
 import * as Plot from "@observablehq/plot"
 import { WebR } from 'webr';
 
-
+// Initialize WebR
 const webR = new WebR();
 await webR.init();
+export const webRVersion = await webR.evalRString(`R.version.string`)
 
+// Grab the URL from the browser so that we know where important files will be
 const pathname = window.location.pathname.replace("index.html","");
 
 await webR.installPackages(
@@ -18,29 +24,74 @@ await webR.installPackages(
   }
 );
 
-export const webRVersion = await webR.evalRString(`R.version.string`)
-
+// Download and source the necessary R script to get the functions
 await webR.evalR(`tf = tempfile();download.file('${window.location.origin}${pathname}pcurve.R',tf);source(tf)`);
 
+var lastString = ""; // global to store the last input analysed, to prevent rerunning if nothing has changed.
+
+/**
+ * Call the R code to return the p curve analysis tables from the results of the 
+ * regular expression matching
+ *
+ * @param {string} stat - The test statistic ("z", "chi2", "r", "t", or "f").
+ * @param {string} df1 - The numerator, or lone, degrees of freedom for the test statistic (may be null for z statistics)
+ * @param {string} df2 - The denominator degrees of freedom for the test statistic (may be null for all but f statistics)
+ * @param {string} value - The value of the test statistic
+ * @param {string} comment - The comment component of the line from the input
+ * @param {string} line - The full text of the line from the input
+ * @returns {function} A debounced version of the function.
+ */
 const pcurve = await webR.evalR('\\(stat,df1,df2,value,comment,line) make_tables(pcurve_prep(stat,df1,df2,value,comment,line), pvalcols = c("pval_log","pval_probit"), prep_class = "table", test_class="pcurvetab")');
 
-// The next two lines are done in two parts to get the conversion to the proper types in each call.
-// The make_plot_data function is memoised so that it doesn't take any extra time
-// for the second call.
+/**
+ * Call the R code to return the data necessary for creating the plot from the results of the 
+ * regular expression matching. pplot1() gets the main plot data (study points).
+ * 
+ * pplot1() and pplot2() are split into separate calls to get the conversion 
+ * to the proper types (data frames) in each call. The make_plot_data R function 
+ * is memoised so that it doesn't take any extra time for the second call.
+ *
+ * @param {string} stat - The test statistic ("z", "chi2", "r", "t", or "f").
+ * @param {string} df1 - The numerator, or lone, degrees of freedom for the test statistic (may be null for z statistics)
+ * @param {string} df2 - The denominator degrees of freedom for the test statistic (may be null for all but f statistics)
+ * @param {string} value - The value of the test statistic
+ * @param {string} comment - The comment component of the line from the input
+ * @param {string} line - The full text of the line from the input
+ * @returns {function} A debounced version of the function.
+ */
 const pplot1 = await webR.evalR('\\(stat,df1,df2,value,comment,line) make_plot_data(pcurve_prep(stat,df1,df2,value,comment,line))[["plotdata"]]');
+
+/**
+ * Call the R code to return the data necessary for creating the plot from the results of the 
+ * regular expression matching. pplot2() gets the Fisher test information.
+ * 
+ * pplot1() and pplot2() are split into separate calls to get the conversion 
+ * to the proper types (data frames) in each call. The make_plot_data R function 
+ * is memoised so that it doesn't take any extra time for the second call.
+ *
+ * @param {string} stat - The test statistic ("z", "chi2", "r", "t", or "f").
+ * @param {string} df1 - The numerator, or lone, degrees of freedom for the test statistic (may be null for z statistics)
+ * @param {string} df2 - The denominator degrees of freedom for the test statistic (may be null for all but f statistics)
+ * @param {string} value - The value of the test statistic
+ * @param {string} comment - The comment component of the line from the input
+ * @param {string} line - The full text of the line from the input
+ * @returns {function} A debounced version of the function.
+ */
 const pplot2 = await webR.evalR('\\(stat,df1,df2,value,comment,line) make_plot_data(pcurve_prep(stat,df1,df2,value,comment,line))[["plotdata2"]]');
 
-var lastString = "";
-
+// Regular expressions for matching important elements of test statistics
 const numRegex0 = '-?(0|[1-9]\\d*)?(\\.\\d+)?(?<=\\d)';
 const numRegex1 = '(?<value>-?(0|[1-9]\\d*)?(\\.\\d+)?(?<=\\d)(e-?(0|[1-9]\\d*))?)';
 const commentRegex = '#(?<comment>.*)'
 
+// Regular expressions for matching test statistics
 const statRegex = [
   new RegExp(`^\\s*(?<stat>z)\\s*=\\s*${numRegex1}\\s*(?:${commentRegex})?$`,'i'),
   new RegExp(`^\\s*(?<stat>[rt]|chi2)\\(\\s*(?<df1>${numRegex0})\\s*\\)\\s*=\\s*${numRegex1}\\s*(?:${commentRegex})?$`,'i'),
   new RegExp(`^\\s*(?<stat>F)\\(\\s*(?<df1>${numRegex0})\\s*,\\s*(?<df2>${numRegex0})\\s*\\)\\s*=\\s*${numRegex1}\\s*(?:${commentRegex})?$`,'i')
 ];
+
+// Various important elements of the display, so we can refer to them within the functions
 const statusMessage = document.getElementById("status-message")
 const textInput = document.getElementById("TApcurve");
 const simpletext = document.getElementById("simpletext");
@@ -52,9 +103,20 @@ const backdrop = document.getElementById("backdrop");
 const halftoggle= document.getElementById("halftoggle");
 
 
-// Functions
+/* Important utility functions
+ *
+ */
 
-// https://codepen.io/ondrabus/pen/WNGaVZN
+/**
+ * Create a debounced function: that is, it only runs every so often
+ * so that (e.g.) not every keypress leads to a re-run.
+ *
+ * See https://codepen.io/ondrabus/pen/WNGaVZN
+ *
+ * @param {string} func - The function to be debounced.
+ * @param {string} timeout - the amount of time between runs, in milliseconds.
+ * @returns {function} A debounced version of the function.
+ */
 function debounce(func, timeout = 200){
   let timer;
   return (...args) => {
@@ -63,11 +125,24 @@ function debounce(func, timeout = 200){
   };
 }
 
-// https://stackoverflow.com/a/6969486/1129889
+/**
+ * Escape all the special characters in a string so that it can be used in a regex 
+ *
+ * See https://stackoverflow.com/a/6969486/1129889
+ *
+ * @param {string} string - The string to be escaped.
+ * @returns {function} An escaped version of the function.
+ */
 function escapeRegExp(string) {
     return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
 }
 
+/**
+ * Create a display version of a (particularly large) number  
+ *
+ * @param {number} x - A number to display nicely.
+ * @returns {string} A string containing a nicely formatted version of the number.
+ */
 function niceNum(x){
   const d = 2
   const p = Math.ceil(Math.abs(Math.log10(x)))
@@ -76,7 +151,10 @@ function niceNum(x){
   return Array.from(f).length > Array.from(e).length ? e : f;
 }
 
-
+/**
+ * Toggle the test table rows that represent the half p curve to be displayed or not. Running
+ * this function just toggles it to whatever value it is not currently set to.
+ */
 export function togglehalf(){
   if(halftoggle.checked){
     tab.querySelectorAll('tbody>tr:nth-child(even)>td').map(x=>x.style.display='');
@@ -85,12 +163,21 @@ export function togglehalf(){
   }
 }
 
+/**
+ * Ensure that the input textarea's backdrop is synced to the 
+ * textarea. The backdrop is where the color highlighting is done.
+ */
 export function backdropScroll(){
   backdrop.scrollTop = textInput.scrollTop;
   backdrop.scrollLeft = textInput.scrollLeft;
 }
 
-
+/**
+ * Ensure that the css of the input textarea's backdrop matches the css
+ * of the textarea in all but the important ways. This ensures that the 
+ * highlighting and text are is visible (because the textarea is actually
+ * transparent!).
+ */
 export function backdropStyle(){
   let css = window.getComputedStyle(textInput);
     let cssstring = "";
@@ -108,6 +195,14 @@ export function backdropStyle(){
     backdrop.style['border-color'] = "rgba(0,0,0,0)";
 }
 
+/**
+ * Search a regular expression result from a line of input for a valid test statistic.
+ * The values must be valid, as well as the degrees of freedom.
+ *
+ * @param {object} m - An object created by a search of a line by the regular 
+ *                   expressions defined above (that match the various test statistics)
+ * @returns {boolean} Is there a valid test statistic in the line?
+ */
 function testMatch(m){
   const stat = m.stat.toLowerCase();
   switch(stat){
@@ -131,6 +226,14 @@ function testMatch(m){
   }
 }
 
+/**
+ * Send the values from the input off to the appropriate R functions to
+ * perform the actual p curve analysis
+ *
+ * @param {object} matchesObj - An object created by a search of a line by the regular 
+ *                   expressions defined above (that match the various test statistics),
+ *                   and that contains valid values (see testMatch())
+ */
 async function doAnalysis(matchesObj){
   const newString = JSON.stringify(matchesObj);
   
@@ -186,8 +289,14 @@ async function doAnalysis(matchesObj){
   lastString = newString; 
 }
 
+/**
+ * A debounced version of doAnalysis() above
+ */
 const doAnalysis2 = debounce(async (x) => {await doAnalysis(x)});
 
+/**
+ * Parse the text input, search for test statistics, perfrom the analysis, and tidy up
+ */
 export async function findTestStatistics(){
   backdropStyle();
   backdrop.innerHTML = "";
@@ -257,6 +366,9 @@ export async function findTestStatistics(){
   
 }
 
+/**
+ * Reset all the outputs (tables, graphs, etc) as though there is no valid input
+ */
 function wipeAnalysis(){
   lastString = "";
   document.querySelectorAll(".onlysig").map((x)=>{x.style.display='none'});
@@ -266,6 +378,12 @@ function wipeAnalysis(){
   tab2.innerHTML = "";
 }
 
+/**
+ * Create the main visualization using d3.js
+ *
+ * @param {object} data - An object containing the data points for the graph (i.e. the studies)
+ * @param {object} fisher - An object containing the information for the Fisher test (log) visualization 
+ */
 async function updatePlot(data,fisher) {
 
   const k = data.length;
