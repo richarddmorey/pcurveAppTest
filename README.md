@@ -34,7 +34,7 @@ source(tf)
 
 *Note that you should not make a habit of running code directly from GitHub, and you should review all code before `source()`ing it.* If you plan to run the code more than once, you should save it locally and source from there.
 
-Then running the appropriate `pcurve` functions with data:
+After loading the functions you can use the appropriate `pcurve` functions with data:
 
 ```r
 pcurve_prep(
@@ -45,7 +45,7 @@ pcurve_prep(
   comment = c("z stat","f stat"),
   line = c("","")
 ) |>
-  pcurve()
+  pcurve(test = "EV")
 ```
 
 ...which will produce the following output:
