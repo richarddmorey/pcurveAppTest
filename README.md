@@ -23,6 +23,7 @@ The underlying R functions can be found in [`public/pcurve.R`](https://github.co
 You can run the functions yourself if you like, e.g., by loading the functions from GitHib:
 
 ```r
+# install.packages(c('memoise','knitr')) # these two packages are needed
 pcurve_functions_url <- "https://raw.githubusercontent.com/richarddmorey/pcurveAppTest/refs/heads/main/public/pcurve.R"
 tf <- tempfile()
 
