@@ -2,6 +2,11 @@
   "name": "pcurve-app",
   "version": "0.0.8",
   "description": "Compute p curve tests in an HTML/JS interface using WebR",
+  "author": {
+    "name": "Richard D. Morey",
+    "email": "richarddmorey@gmail.com",
+    "url": "https://richarddmorey.com"
+  },
   "type": "module",
   "scripts": {
     "start": "vite",
