@@ -75,8 +75,9 @@ You can have a working version of this app for free in less than 5 minutes using
 4. **Run the included deployment action.** Go to "Actions" and select the Action "Deploy static content to Pages". Run this action manually ("Run workflow")
 5. **Replace the URLs in the README.** Go to Settings/Pages and note the URL of your site. Then go to `README.md` and edit this file so that the URL of the live website is the URL of fork. You need to edit multiple URLs in the readme.
 
-
 After you do the above, every time you push a change to your fork GitHub Actions will automatically rebuild the app for you.
+
+If you make substantial changes to the app, you might also change the app name, version, and author in the `package.json` file.
 
 #### Testing locally
 
