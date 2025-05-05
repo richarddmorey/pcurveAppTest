@@ -20,9 +20,55 @@ Based on [hrbrmstr](https://rud.is/)'s [WebR + Vite + Glitch: Fully In-browser W
 
 The underlying R functions can be found in [`public/pcurve.R`](https://github.com/richarddmorey/pcurveAppTest/blob/main/public/pcurve.R).
 
-### Deploying your own version
+You can run the functions yourself if you like, e.g., by loading the functions from GitHib:
 
-You can have a working version of this app for free in less than 5 minutes using GitHub pages. You are free to edit this app to make it do whatever you like (but please cite our work if you do).
+```r
+pcurve_functions_url <- "https://raw.githubusercontent.com/richarddmorey/pcurveAppTest/refs/heads/main/public/pcurve.R"
+tf <- tempfile()
+
+download.file(pcurve_functions_url, destfile = tf)
+
+source(tf)
+```
+
+*Note that you should not make a habit of running code directly from GitHub, and you should review all code before `source()`ing it.* If you plan to run the code more than once, you should save it locally and source from there.
+
+Then running the `pcurve` appropriate functions with data:
+
+```r
+pcurve_prep(
+  stat = c("z", "f"),
+  df1 = c(NA, 10),
+  df2 = c(NA, 25),
+  value = c(3, 6),
+  comment = c("z stat","f stat"),
+  line = c("","")
+) |>
+  pcurve()
+```
+
+...which will produce the following output:
+
+```
+$prep_table
+  stat df1 df2 value comment line     string      ncp        lp significant
+z chi2   1  NA     9  z stat             Z=3 2.336492 -5.914579        TRUE
+f    f  10  25     6  f stat      F(10,25)=6 8.533369 -8.921079        TRUE
+  contr_probit contr_log
+z    -1.136522  5.837694
+f    -1.969764 11.850693
+
+$tests
+  test alphaBound teststat_log    pval_log teststat_probit  pval_probit k_total
+1   EV       0.05     17.68839 0.001419698       -3.106286 0.0009472653       2
+  k_sig
+1     2
+
+```
+
+### Deploying your own version of the online app
+
+You can have a working version of this app for free in less than 5 minutes using GitHub pages. You are welcome to edit this app to make it do whatever you like (but please cite our work if you do).
 
 1. **Fork the repository.**
 2. **Enable GitHub Actions.** Under setttings, enable Github Pages on your forked repository. The source should be "GitHub Actions".
