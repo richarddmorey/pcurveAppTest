@@ -32,3 +32,31 @@ You can have a working version of this app for free in less than 5 minutes using
 
 After you do the above, every time you push a change to your fork GitHub Actions will automatically rebuild the app for you.
 
+#### Testing locally
+
+Once you have your own fork, use `git` (e.g. GitHub desktop) to clone the repository to your own computer. You'll need to [install `node.js`](https://nodejs.org/en/download) if you don't already have it installed.
+
+If you have `node.js` installed, navigate to the repository's root directory in a terminal window. Then:
+
+1. Install the necessary packages with `npm`:
+
+```
+npm ci
+```
+
+2. Build the site with `vite`:
+
+```
+npm run build
+```
+
+3. Serve the site with `vite`:
+
+```
+npm run serve
+```
+
+4. Using a browser, navigate to the local URL indicated by the output of the serve command. Kill the server with `Ctrl-C`.
+
+5. Change the app code, then rebuild (from step 2) and start the server again to test. Once you're satisfied with your changes, you can push the changes to GitHub and then the app will be automatically rebuild.
+
