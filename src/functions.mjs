@@ -101,6 +101,7 @@ const displayurl = document.getElementById("displayurl")
 const ojsplot = document.getElementById("ojs-plot");
 const backdrop = document.getElementById("backdrop");
 const halftoggle= document.getElementById("halftoggle");
+const lstoggle= document.getElementById("lstoggle");
 
 
 /* Important utility functions
@@ -155,11 +156,19 @@ function niceNum(x){
  * Toggle the test table rows that represent the half p curve to be displayed or not. Running
  * this function just toggles it to whatever value it is not currently set to.
  */
-export function togglehalf(){
-  if(halftoggle.checked){
+export function togglehalfls(){
+  if(halftoggle.checked & lstoggle.checked){
     tab.querySelectorAll('tbody>tr:nth-child(even)>td').map(x=>x.style.display='');
+    tab.querySelectorAll('tbody>tr:nth-child(n+5)>td').map(x=>x.style.display='');
+  }else if(halftoggle.checked){
+    tab.querySelectorAll('tbody>tr:nth-child(even)>td').map(x=>x.style.display='');
+    tab.querySelectorAll('tbody>tr:nth-child(n+5)>td').map(x=>x.style.display='none');
+  }else if(lstoggle.checked){
+    tab.querySelectorAll('tbody>tr:nth-child(even)>td').map(x=>x.style.display='none');
+    tab.querySelectorAll('tbody>tr:nth-child(5)>td').map(x=>x.style.display='');
   }else{
     tab.querySelectorAll('tbody>tr:nth-child(even)>td').map(x=>x.style.display='none');
+    tab.querySelectorAll('tbody>tr:nth-child(n+5)>td').map(x=>x.style.display='none');
   }
 }
 
@@ -278,7 +287,7 @@ async function doAnalysis(matchesObj){
   );
   
   tab.innerHTML = pcurve_table.values[1];
-  togglehalf();
+  togglehalfls();
   tab.querySelector("table").classList.add('table','table-striped');
   tab.querySelector("thead").classList.add('thead-dark');
   

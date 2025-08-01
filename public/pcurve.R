@@ -3,6 +3,33 @@
 #' Email: richarddmorey@gmail.com
 #' See https://github.com/richarddmorey/pcurveAppTest
 
+#' Compute  f(a) = log(1 - exp(-a))  stably
+#' 
+#' See https://github.com/cran/Rmpfr/blob/d41d4cd3982b0d0c5d7aabf78e1bbc4acca2d6f6/R/special-fun.R#L647
+#' 
+#' @param a numeric vector of positive values
+#' @param cutoff  log(2) is optimal, see  Maechler (201x) .....
+#' @return f(a) == log(1 - exp(-a)) == log1p(-exp(-a)) == log(-expm1(-a))
+#' @author Martin Maechler, May 2002 .. Aug. 2011
+#' @references Maechler(2012)
+#' Accurately Computing log(1 - exp(-|a|)) Assessed by the Rmpfr package.
+#' http://cran.r-project.org/web/packages/Rmpfr/vignettes/log1mexp-note.pdf
+# MM: ~/R/Pkgs/Rmpfr/inst/doc/log1mexp-note.Rnw
+log1mexp <- function(a, cutoff = log(2)) ## << log(2) is optimal >>
+{
+  if(has.na <- any(ina <- is.na(a))) {
+    y <- a
+    a <- a[ok <- !ina]
+  }
+  if(any(a < 0))## a == 0  -->  -Inf	(in both cases)
+    warning("'a' >= 0 needed")
+  tst <- a <= cutoff
+  r <- a
+  r[ tst] <- log(-expm1(-a[ tst]))
+  r[!tst] <- log1p(-exp(-a[!tst]))
+  if(has.na) { y[ok] <- r ; y } else r
+}
+
 #' Find a noncentrality parameter that yields a fixed probability to the right
 #' of a truncation point.
 #' 
@@ -26,6 +53,8 @@
 #' @export
 #' 
 find_ncp_uniroot0 = function(family=c('chi2','f'),pr=1/3,alphaBound=0.05,...){
+  if(pr == alphaBound) return(0)
+  if(pr<alphaBound) stop("pr cannot be less than alphaBound.")
   family = match.arg(family, c('chi2','f'))
   
   if(family=='chi2'){
@@ -132,9 +161,9 @@ pcurve_prep0 = memoise::memoise(
     }
     if(stat=='f'){
       if(df1 >= 1 & df2 >= 1){
-        ncp = find_ncp_uniroot('f',df1=df1,df2=df2,pr = pr, alphaBound = alphaBound)
+        ncp = find_ncp_uniroot('f', df1=df1, df2=df2, pr = pr, alphaBound = alphaBound)
         if(value>=0){
-          lp = pf(value,df1,df2,lower.tail = FALSE,log.p = TRUE)
+          lp = pf(value,df1,df2,lower.tail = FALSE, log.p = TRUE)
         }else{
           lp = NaN
         }
@@ -144,7 +173,7 @@ pcurve_prep0 = memoise::memoise(
       }
     }else if(stat=='chi2'){
       if(df1 >= 1){
-        ncp = find_ncp_uniroot('chi2',df=df1, pr = pr, alphaBound = alphaBound)
+        ncp = find_ncp_uniroot('chi2', df=df1, pr = pr, alphaBound = alphaBound)
         if(value>=0){
           lp = pchisq(value,df1,lower.tail = FALSE,log.p = TRUE)
         }else{
@@ -193,17 +222,6 @@ pcurve_prep = function(stat, df1, df2, value, comment, line, pr=1/3, alphaBound=
   do.call(rbind, args = res)
 }
 
-# pcurve_prep0_EV = function(stat, df1, df2, value, alphaBound = 0.05, ...){
-#   lp = switch(
-#     tolower(stat),
-#     chi2 = ifelse(df1>=1 & value >= 0, pchisq(value,df1,lower.tail = FALSE, log.p = TRUE), NaN),
-#     f = ifelse(df1>=1 & df2>=1 & value >= 0, pf(value,df1,df2,lower.tail = FALSE, log.p = TRUE), NaN),
-#     stop('Unknown stat: ', stat)
-#   )
-#   return(lp - log(alphaBound))
-# }
-
-
 #' @rdname pcurve_prep0
 #' @export  
 pcurve_prep0_LEV = memoise::memoise(
@@ -244,11 +262,13 @@ pcurve_prep0_LEV = memoise::memoise(
 #' input, and `tests` which is a data frame containing the test results.
 #' @export
 pcurve = function(prep_table, alphaBound = 0.05, test = c("EV","LEV")){
-  test = match.arg(test, c("EV","LEV"))
+  test = match.arg(test, c("EV","LEV","LS"))
   prep_table$significant = prep_table$lp < log(alphaBound)
   test_string = paste0(test,alphaBound)
   if(test == "EV"){
     lp = prep_table$lp - log(alphaBound)
+  }else if(test == "LS"){
+    lp = log1mexp(-(prep_table$lp - log(alphaBound)))
   }else{
     lp = sapply(1:nrow(prep_table),function(i){
       v = prep_table[i,]
@@ -260,7 +280,7 @@ pcurve = function(prep_table, alphaBound = 0.05, test = c("EV","LEV")){
   lp = lp[prep_table$significant]
   k = sum(prep_table$significant)
   if(k > 0){
-  # Probit
+    # Probit
     lp |>
       qnorm(log.p=TRUE) -> qn
     contribution_probit = qn / sqrt(k)
@@ -303,7 +323,7 @@ pcurve = function(prep_table, alphaBound = 0.05, test = c("EV","LEV")){
 #' @rdname pcurve
 #' @export  
 pcurve_all = function(prep_table){
-  s = expand.grid(alphaBound=c(.05,.025), test = c("EV","LEV"), stringsAsFactors=FALSE)
+  s = expand.grid(alphaBound=c(.05,.025), test = c("EV","LEV","LS"), stringsAsFactors=FALSE)
   res = mapply(FUN = pcurve, 
                test = s$test, alphaBound = s$alphaBound,
                MoreArgs = list(prep_table = prep_table),

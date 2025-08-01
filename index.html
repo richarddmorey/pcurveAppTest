@@ -159,11 +159,11 @@ chi2(2)=8.74 # Study 8</textarea>
             </div>
             <div class="offcanvas-body">
                 <p class="lead">
-                    The tests table contains the results of the various p curve tests that Simonsohn et al have developed. Each column is described below. We do not show the half p-curve tests by default, for reasons that are explained in our paper. Click the "Include half p-curves?" check box to show them.
+                    The tests table contains the results of the various p curve tests that Simonsohn et al have developed. Each column is described below. We do not show the half p-curve tests by default, for reasons that are explained in our paper. Click the "Include half p-curves?" check box to show them. We also do not show the "left skew" tests by default, given that the authors have not focused much on these tests. lick the "Include LS tests?" check box to show them. 
                     </p>
                     <dl>
                     <dt>Test</dt>
-                    <dd>"EV" refers to Simonsohn et al's "evidential value" or "right skew" test; "LEV" refers to their "lack of evidential value" or "flatter than 33% power" test.</dd>
+                    <dd>"EV" refers to Simonsohn et al's "evidential value" or "right skew" test; "LEV" refers to their "lack of evidential value" or "flatter than 33% power" test; "LS" refers to their "left skew" test. Note that the authors never developed the LS test for the Stouffer transform in 2015, but its <i>p</i> value is simply one minus the p value for the Stouffer "EV" test, so it is trivial.</dd>
                     <dt>α</dt>
                     <dd>α (alpha) represents the critical boundary chosen for the test. 0.05 is their "full" p-curve; 0.025 is their "half" p curve.</dd>
                     <dt>Fisher χ²</dt>
@@ -257,7 +257,13 @@ chi2(2)=8.74 # Study 8</textarea>
                     <div class="form-check form-switch">
                         <p>
                           <input class="form-check-input" type="checkbox" id="halftoggle">
-                          <label class="form-check-label" for="flexSwitchCheckDefault">Include half p-curves?</label>
+                          <label class="form-check-label" for="halftoggle">Include half p-curves?</label>
+                        </p>
+                    </div>
+                    <div class="form-check form-switch">
+                        <p>
+                          <input class="form-check-input" type="checkbox" id="lstoggle">
+                          <label class="form-check-label" for="lstoggle">Include test LS?</label>
                         </p>
                     </div>
                     <div id="table1" class="table table-responsive onlysig"></div>

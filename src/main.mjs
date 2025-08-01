@@ -4,7 +4,7 @@ statusMessage.innerHTML = (crossOriginIsolated ? "🟢" : "🌕") + " WebR Loadi
 
 import { Base64 } from 'js-base64';
 
-import { togglehalf, backdropScroll, backdropStyle, findTestStatistics, webRVersion } from './functions';
+import { togglehalfls, backdropScroll, backdropStyle, findTestStatistics, webRVersion } from './functions';
 
 statusMessage.innerHTML = (crossOriginIsolated ? "🟢" : "🌕") + `WebR Loaded! [${webRVersion}]`
 
@@ -33,7 +33,8 @@ textInput.disabled = false;
     });
 
 // Set important events
-halftoggle.onchange = togglehalf;
+halftoggle.onchange = togglehalfls;
+lstoggle.onchange = togglehalfls;
 textInput.oninput = findTestStatistics;
 
 /* Because text in textareas can't be easily styled automatically
