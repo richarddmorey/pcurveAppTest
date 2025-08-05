@@ -3,16 +3,16 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <meta property="og:title" content="p-curve demonstration app"/>
+        <meta property="og:title" content="P-curve demonstration app"/>
         <meta property="og:type" content="website" />
         <meta property="og:image" content="https://richarddmorey.github.io/pcurveAppTest/og_image.png"/>
-        <meta property="og:description" content="An app for demonstrating and performing p-curve analyses, meant to accompany Morey and Davis-Stober (in preparation)"/>
+        <meta property="og:description" content="An app for demonstrating and performing P-curve analyses, meant to accompany Morey and Davis-Stober (in preparation)"/>
         <!--meta name="color-scheme" content="light dark"/-->
         <link rel="icon" href="/favicon.ico"/>    
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-        <meta name="description" content="An app for demonstrating and performing p-curve analyses, meant to accompany Morey and Davis-Stober (in preparation)" />
+        <meta name="description" content="An app for demonstrating and performing P-curve analyses, meant to accompany Morey and Davis-Stober (in preparation)" />
         <meta name="author" content="Richard D. Morey" />
-        <title>p curve app (Morey & Davis-Stober)</title>
+        <title>P-curve app (Morey & Davis-Stober)</title>
         <!-- Font Awesome icons (free version)-->
         <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
         <!-- Google fonts-->
@@ -80,7 +80,7 @@ chi2(2)=8.74 # Study 8</textarea>
         <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top" id="topNav">
             <div class="container-fluid">
             <a class="navbar-brand" href="#page-top">
-                <span class="d-block d-lg-block">p curve analysis | <span id="status-message">⚪WebR not loaded...</span></span>
+                <span class="d-block d-lg-block">P-curve analysis | <span id="status-message">⚪WebR not loaded...</span></span>
             </a>
             <div class="collapse navbar-collapse" id="navbarResponsive">
                 <button class="btn btn-info wiggle1" type="button" data-bs-toggle="offcanvas" data-bs-target="#genHelp" aria-controls="genHelp"><i class="fa-solid fa-circle-question"></i> General help</button>
@@ -159,19 +159,19 @@ chi2(2)=8.74 # Study 8</textarea>
             </div>
             <div class="offcanvas-body">
                 <p class="lead">
-                    The tests table contains the results of the various p curve tests that Simonsohn et al have developed. Each column is described below. We do not show the half p-curve tests by default, for reasons that are explained in our paper. Click the "Include half p-curves?" check box to show them. We also do not show the "left skew" tests by default, given that the authors have not focused much on these tests. lick the "Include LS tests?" check box to show them. 
+                    The tests table contains the results of the various P-curve tests that Simonsohn et al have developed. Each column is described below. We do not show the half P-curve tests by default, for reasons that are explained in our paper. Click the "Include half P-curves?" check box to show them. We also do not show the "left skew" tests by default, given that the authors have not focused much on these tests. lick the "Include LS tests?" check box to show them. 
                     </p>
                     <dl>
                     <dt>Test</dt>
                     <dd>"EV" refers to Simonsohn et al's "evidential value" or "right skew" test; "LEV" refers to their "lack of evidential value" or "flatter than 33% power" test; "LS" refers to their "left skew" test. Note that the authors never developed the LS test for the Stouffer transform in 2015, but its <i>p</i> value is simply one minus the p value for the Stouffer "EV" test, so it is trivial.</dd>
                     <dt>α</dt>
-                    <dd>α (alpha) represents the critical boundary chosen for the test. 0.05 is their "full" p-curve; 0.025 is their "half" p curve.</dd>
+                    <dd>α (alpha) represents the critical boundary chosen for the test. 0.05 is their "full" P-curve; 0.025 is their "half" P-curve.</dd>
                     <dt>Fisher χ²</dt>
-                    <dd>The χ² test statistic for Simonsohn et al's (2014) p curve test using a log transformation on the scaled p values (Fisher's method). The test statistic has <i>2×k</i> degrees of freedom, where <i>k</i> is the number of significant studies.</dd>
+                    <dd>The χ² test statistic for Simonsohn et al's (2014) P-curve test using a log transformation on the scaled p values (Fisher's method). The test statistic has <i>2×k</i> degrees of freedom, where <i>k</i> is the number of significant studies.</dd>
                     <dt>Fisher p</dt>
                     <dd>The p value corresponding to the Fisher χ² test statistic.</dd>
                     <dt>Stouffer Z</dt>
-                    <dd>The Z test statistic for Simonsohn et al's (2015) p curve test using a probit transformation on the scaled p values (Stouffer's method).</dd>
+                    <dd>The Z test statistic for Simonsohn et al's (2015) P-curve test using a probit transformation on the scaled p values (Stouffer's method).</dd>
                     <dt>Stouffer p</dt>
                     <dd>The p value corresponding to the Stouffer Z test statistic.</dd>
                     <dt># studies</dt>
@@ -201,13 +201,13 @@ chi2(2)=8.74 # Study 8</textarea>
                     <dt>p</dt>
                     <dd>The recomputed p value for the entered test statistic.</dd>
                     <dt>Sig.?</dt>
-                    <dd>Is the p value in this row significant at 0.05? ✅ means p&lt;0.05, and hence the value will be included in the full p-curve; ❌ means p≥0.05, and hence the value will not be included.</dd>
+                    <dd>Is the p value in this row significant at 0.05? ✅ means p&lt;0.05, and hence the value will be included in the full P-curve; ❌ means p≥0.05, and hence the value will not be included.</dd>
                     <dt>Fisher</dt>
                     <dd>The contribution of that row's test statistic to the overall Fisher's χ² statistic. The sum of this column is the total χ² statistic in the tests table (within rounding error).</dd>
                     <dt>Stouffer</dt>
                     <dd>The contribution of that row's test statistic to the overall Stouffer's Z statistic. The sum of this column is the total Z statistic in the tests table (within rounding error).</dd>
                     <dt>LEV NCP</dt>
-                    <dd>The noncentrality parameter used for the full p-curve LEV test ("lack of evidential value", or "flatter than 33% power") for the test statistic in that row; i.e. the distribution of the test statistic that would yield a 1/3 probability of significance at 0.05.</dd>
+                    <dd>The noncentrality parameter used for the full P-curve LEV test ("lack of evidential value", or "flatter than 33% power") for the test statistic in that row; i.e. the distribution of the test statistic that would yield a 1/3 probability of significance at 0.05.</dd>
             </dl>
             </div>
         </div> 
@@ -216,15 +216,15 @@ chi2(2)=8.74 # Study 8</textarea>
             <!-- About-->
             <section class="resume-section" id="about">
                 <div class="resume-section-content">
-                    <h2>p curve analysis app</h2>
+                    <h2>P-curve analysis app</h2>
                     <h4 class="mb-5">Morey & Davis-Stober</h4>
-                    <p>Scroll down, or choose from the menu above, to see the results of p curve analysis. 
+                    <p>Scroll down, or choose from the menu above, to see the results of P-curve analysis. 
                         You can modify the analysis be editing the textbox to the left. Also, try some of the <a href="#examples">examples</a>. 
                         The code for this app can be found on <a href="https://github.com/richarddmorey/pcurveAppTest" target="_blank"><i class="fa-brands fa-github"></i> GitHub</a>.
                     </p>
                     <div class="alert alert-warning" role="alert">
                         <i class="fa-solid fa-triangle-exclamation"></i> 
-                        We do not recommend the use of the p curve due to its poor statistical properties. See the <a href="#examples">examples</a> and <a href="#citation">our paper</a> for details.
+                        We do not recommend the use of the P-curve due to its poor statistical properties. See the <a href="#examples">examples</a> and <a href="#citation">our paper</a> for details.
                     </div>
                 </div>
             </section>
@@ -257,7 +257,7 @@ chi2(2)=8.74 # Study 8</textarea>
                     <div class="form-check form-switch">
                         <p>
                           <input class="form-check-input" type="checkbox" id="halftoggle">
-                          <label class="form-check-label" for="halftoggle">Include half p-curves?</label>
+                          <label class="form-check-label" for="halftoggle">Include half P-curves?</label>
                         </p>
                     </div>
                     <div class="form-check form-switch">
@@ -297,7 +297,7 @@ chi2(2)=8.74 # Study 8</textarea>
                     </div>
                     <h3>Replications of published analyses</h3>
                     <p class="lead">
-                        The replications of analysis demonstrate how this app improves the transparency of p curve analyses using comments and links.
+                        The replications of analysis demonstrate how this app improves the transparency of P-curve analyses using comments and links.
                     </p>
                     <ul style="list-style-type: none;">
                         <li>
@@ -314,17 +314,17 @@ chi2(2)=8.74 # Study 8</textarea>
                                 <i class="fa-solid fa-link"></i> Replication of the main analysis in Cuddy, Schultz, & Fosse (2018)</a> - the reply to Simmons & Simonsohn (2017), above
                         </li>
                     </ul>
-                    <h3> Demonstrations of problems with the p-curve</h3>
+                    <h3> Demonstrations of problems with the P-curve</h3>
                     <p class="lead">For most of these we do not use Simonsohn et al's (2015) full/half rule for determining "evidential value"; to see why, see the nonmonotonicity demonstration. 
                     <h4>Sensitivity</h4>
                     <ul style="list-style-type: none;">
                         <li>
                             <a target="_blank" href="?data=IyBUaGlzIGV4YW1wbGUgc2hvd3MgdGhlIHNlbnNpdGl2aXR5CiMgb2YgdGhlIHByb2JpdCAoU3RvdWZmZXIpCiMgdHJhbnNmb3JtYXRpb24gdG8gcm91bmRpbmcuClogPSAxLjk2NCAjIENoYW5nZSB0aGlzIHRvIDEuOTYKWiA9IDMuNApaID0gNAojIENoYW5nZSB0aGUgZmlyc3QgdmFsdWUgdG8gMS45NiwKIyBhbmQgbm90aWNlIGhvdyB0aGUgU3RvdWZmZXIgcCB2YWx1ZQojIGZvciB0ZXN0IEVWIGF0IGFscGhhPTAuMDUgY2hhbmdlcyAKIyBpbiB0aGUgdGVzdCB0YWIuCiMgQWxzbyBub3RpY2UgaG93IHRoZSBGaXNoZXIgcCB2YWx1ZQojIGZvciB0ZXN0IExFViBhdCBhbHBoYT0wLjA1IAojIGNoYW5nZXMuCg#tests">
-                                <i class="fa-solid fa-link"></i> Rounding sensitivity in full p curve</a>, test EV (Stouffer/probit) and test LEV (Fisher/log)
+                                <i class="fa-solid fa-link"></i> Rounding sensitivity in full P-curve</a>, test EV (Stouffer/probit) and test LEV (Fisher/log)
                         </li>
                         <li>
                             <a target="_blank" href="?data=IyBUaGlzIGV4YW1wbGUgc2hvd3MgdGhlIHNlbnNpdGl2aXR5CiMgb2YgdGhlIHByb2JpdCAoU3RvdWZmZXIpCiMgdHJhbnNmb3JtYXRpb24gdG8gcm91bmRpbmcuCnQoMTgzKT0yLjI2NCAjIENoYW5nZSB0aGlzIHRvIDIuMjYKWj0zLjMKWj00LjUKIyBDaGFuZ2UgdGhlIGZpcnN0IHZhbHVlIHRvIDIuMjYsCiMgYW5kIG5vdGljZSBob3cgdGhlIFN0b3VmZmVyIHAgdmFsdWUKIyBmb3IgdGVzdCBFViBhdCBhbHBoYT0wLjAyNSBjaGFuZ2VzIAojIGluIHRoZSB0ZXN0IHRhYi4KIyBBbHNvIG5vdGljZSBob3cgdGhlIEZpc2hlciBwIHZhbHVlCiMgZm9yIHRlc3QgTEVWIGF0IGFscGhhPTAuMDI1CiMgY2hhbmdlcy4K#tests">
-                                <i class="fa-solid fa-link"></i> Rounding sensitivity in half p curve</a>, test EV (Stouffer/probit) and test LEV (Fisher/log)
+                                <i class="fa-solid fa-link"></i> Rounding sensitivity in half P-curve</a>, test EV (Stouffer/probit) and test LEV (Fisher/log)
                         </li>
                         <li>
                             <a target="_blank" href="?data=IyBVc2luZyBTdG91ZmZlcidzL3Byb2JpdCBtZXRob2QKIyAoU2ltb25zb2huIGV0IGFsLCAyMDE1KSwKIyBhbnkgYXJiaXRyYXJpbHkgbGFyZ2UgdGVzdAojIHN0YXRpc3RpYyBjYW4gYmUgY2FuY2VsbGVkIG91dAojIGJ5IG9uZSBzdWZmaWNpZW50bHkgY2xvc2UgdG8gdGhlIAojIHNpZ25pZmljYW5jZSBib3VuZGFyeS4KWiA9IDguMiAjIEEgdmVyeSBsYXJnZSBaIHN0YXQuLi4KRigxLDIpID0gMTguNTEyODIwNTEyODIwNiAjIC4uLmNhbiBiZSBjb21wbGV0ZWx5IGNhbmNlbGxlZCBvdXQh#tab-data">
@@ -347,27 +347,27 @@ chi2(2)=8.74 # Study 8</textarea>
                     <ul style="list-style-type: none;">
                         <li>
                             <a target="_blank" href="?data=IyBEZW1vIG9mIG5vbm1vbm90b25pY2l0eSwgc2V0IDEKIyAiTm9uc2lnbmlmaWNhbnQiIGV2aWRlbnRpYWwgdmFsdWUKIyBUaGUgZmlyc3QgdHdvIHRlc3Qgc3RhdGlzdGljcwojIHdpbGwgaW5jcmVhc2UgdGhyb3VnaG91dCB0aGUgc2V0cwpaPTIuMQpaPTIuMQojIFRoZSBvbmVzIGJlbG93IHdpbGwgcmVtYWluIHRoZSAKIyB0aHJvdWdob3V0IHRoZSBzZXRzClo9MS45NzEKWj0xLjk4MwpaPTEuOTk2Clo9Mi4wMDkKWj0yLjI1OQpaPTIuMzI4Clo9Mi40Clo9Mi40NzkKWj0yLjU2NApaPTIuNjU3Clo9Mi43NjMKWj0yLjg4NQpaPTMuMDM0Clo9My4yMjkKWj0zLjUz#tests">
-                                <i class="fa-solid fa-link"></i> Set 1, "not significant"</a>: Full p curve yields p&gt;0.1 
+                                <i class="fa-solid fa-link"></i> Set 1, "not significant"</a>: Full P-curve yields p&gt;0.1 
                         </li>
                         <li>
                             <a target="_blank" href="?data=IyBEZW1vIG9mIG5vbm1vbm90b25pY2l0eSwgc2V0IDIKIyAiU2lnbmlmaWNhbnQiIGV2aWRlbnRpYWwgdmFsdWUKIyBUaGUgZmlyc3QgdHdvIHRlc3Qgc3RhdGlzdGljcwojIHdpbGwgaW5jcmVhc2UgdGhyb3VnaG91dCB0aGUgc2V0cwpaPTIuMgpaPTIuMgojIFRoZSBvbmVzIGJlbG93IHdpbGwgcmVtYWluIHRoZSAKIyB0aHJvdWdob3V0IHRoZSBzZXRzClo9MS45NzEKWj0xLjk4MwpaPTEuOTk2Clo9Mi4wMDkKWj0yLjI1OQpaPTIuMzI4Clo9Mi40Clo9Mi40NzkKWj0yLjU2NApaPTIuNjU3Clo9Mi43NjMKWj0yLjg4NQpaPTMuMDM0Clo9My4yMjkKWj0zLjUz#tests">
-                                <i class="fa-solid fa-link"></i> Set 2, "significant"</a>: Increased two test statistics from set 1, and both full and half p curves yield p&lt;0.1
+                                <i class="fa-solid fa-link"></i> Set 2, "significant"</a>: Increased two test statistics from set 1, and both full and half P-curves yield p&lt;0.1
                         </li>
                         <li>
                             <a target="_blank" href="?data=IyBEZW1vIG9mIG5vbm1vbm90b25pY2l0eSwgc2V0IDMKIyAiTm9uc2lnbmlmaWNhbnQiIGV2aWRlbnRpYWwgdmFsdWUKIyBUaGUgZmlyc3QgdHdvIHRlc3Qgc3RhdGlzdGljcwojIHdpbGwgaW5jcmVhc2UgdGhyb3VnaG91dCB0aGUgc2V0cwpaPTIuMjMKWj0yLjMKIyBUaGUgb25lcyBiZWxvdyB3aWxsIHJlbWFpbiB0aGUgCiMgdGhyb3VnaG91dCB0aGUgc2V0cwpaPTEuOTcxClo9MS45ODMKWj0xLjk5NgpaPTIuMDA5Clo9Mi4yNTkKWj0yLjMyOApaPTIuNApaPTIuNDc5Clo9Mi41NjQKWj0yLjY1NwpaPTIuNzYzClo9Mi44ODUKWj0zLjAzNApaPTMuMjI5Clo9My41Mw#tests">
-                                <i class="fa-solid fa-link"></i> Set 3, "not significant"</a>: Increased two test statistics from set 2, but half p-curve yields p&gt;0.1
+                                <i class="fa-solid fa-link"></i> Set 3, "not significant"</a>: Increased two test statistics from set 2, but half P-curve yields p&gt;0.1
                         </li>
                         <li>
                             <a target="_blank" href="?data=IyBEZW1vIG9mIG5vbm1vbm90b25pY2l0eSwgc2V0IDQKIyAiU2lnbmlmaWNhbnQiIGV2aWRlbnRpYWwgdmFsdWUKIyBUaGUgZmlyc3QgdHdvIHRlc3Qgc3RhdGlzdGljcwojIHdpbGwgaW5jcmVhc2UgdGhyb3VnaG91dCB0aGUgc2V0cwpaPTIuMjQKWj0yLjcKIyBUaGUgb25lcyBiZWxvdyB3aWxsIHJlbWFpbiB0aGUgCiMgdGhyb3VnaG91dCB0aGUgc2V0cwpaPTEuOTcxClo9MS45ODMKWj0xLjk5NgpaPTIuMDA5Clo9Mi4yNTkKWj0yLjMyOApaPTIuNApaPTIuNDc5Clo9Mi41NjQKWj0yLjY1NwpaPTIuNzYzClo9Mi44ODUKWj0zLjAzNApaPTMuMjI5Clo9My41Mw#tests">
-                                <i class="fa-solid fa-link"></i> Set 4, "significant"</a>: Increased two test statistics from set 3, and both full and half p curves yield p&lt;0.1
+                                <i class="fa-solid fa-link"></i> Set 4, "significant"</a>: Increased two test statistics from set 3, and both full and half P-curves yield p&lt;0.1
                         </li>
                         <li>
                             <a target="_blank" href="?data=IyBEZW1vIG9mIG5vbm1vbm90b25pY2l0eSwgc2V0IDUKIyAiTm9uc2lnbmlmaWNhbnQiIGV2aWRlbnRpYWwgdmFsdWUKIyBUaGUgZmlyc3QgdHdvIHRlc3Qgc3RhdGlzdGljcwojIHdpbGwgaW5jcmVhc2UgdGhyb3VnaG91dCB0aGUgc2V0cwpaPTIuMjUKWj0yLjkKIyBUaGUgb25lcyBiZWxvdyB3aWxsIHJlbWFpbiB0aGUgCiMgdGhyb3VnaG91dCB0aGUgc2V0cwpaPTEuOTcxClo9MS45ODMKWj0xLjk5NgpaPTIuMDA5Clo9Mi4yNTkKWj0yLjMyOApaPTIuNApaPTIuNDc5Clo9Mi41NjQKWj0yLjY1NwpaPTIuNzYzClo9Mi44ODUKWj0zLjAzNApaPTMuMjI5Clo9My41Mw#tests">
-                                <i class="fa-solid fa-link"></i> Set 5, "not significant"</a>: Increased two test statistics from set 4, but half p-curve yields p&gt;0.1 (so not significant by their rule)
+                                <i class="fa-solid fa-link"></i> Set 5, "not significant"</a>: Increased two test statistics from set 4, but half P-curve yields p&gt;0.1 (so not significant by their rule)
                         </li>
                         <li>
                             <a target="_blank" href="?data=IyBEZW1vIG9mIG5vbm1vbm90b25pY2l0eSwgc2V0IDYKIyAiU2lnbmlmaWNhbnQiIGV2aWRlbnRpYWwgdmFsdWUKIyBUaGUgZmlyc3QgdHdvIHRlc3Qgc3RhdGlzdGljcwojIHdpbGwgaW5jcmVhc2UgdGhyb3VnaG91dCB0aGUgc2V0cwpaPTIuMwpaPTMuMQojIFRoZSBvbmVzIGJlbG93IHdpbGwgcmVtYWluIHRoZSAKIyB0aHJvdWdob3V0IHRoZSBzZXRzClo9MS45NzEKWj0xLjk4MwpaPTEuOTk2Clo9Mi4wMDkKWj0yLjI1OQpaPTIuMzI4Clo9Mi40Clo9Mi40NzkKWj0yLjU2NApaPTIuNjU3Clo9Mi43NjMKWj0yLjg4NQpaPTMuMDM0Clo9My4yMjkKWj0zLjUz#tests">
-                                <i class="fa-solid fa-link"></i> Set 6, "significant"</a>: Increased two test statistics from set 5, and both full and half p curves yield p&lt;0.1 (so significant by their rule)
+                                <i class="fa-solid fa-link"></i> Set 6, "significant"</a>: Increased two test statistics from set 5, and both full and half P-curves yield p&lt;0.1 (so significant by their rule)
                         </li>
                     </ul>
                 </div>
@@ -379,13 +379,13 @@ chi2(2)=8.74 # Study 8</textarea>
                     <h2 class="mb-5">Citation</h2>
                     <h4>Our citations</h4>
                     <ul>
-                        <li>Morey, R.D. & Davis-Stober, C.P. (in preparation). On the statistical properties of the p-curve meta-analytic procedure.
+                        <li>Morey, R.D. & Davis-Stober, C.P. (2025). On the poor statistical properties of the P-curve meta-analytic procedure.
                         <li>Morey, R.D. & Davis-Stober, C.P. (2024). P-curve demonstration app  (website) <a target="_blank" href="https://richarddmorey.github.io/pcurveAppTest">https://richarddmorey.github.io/pcurveAppTest</a>
                     </ul>
-                    <h4>General p curve citations</h4>
+                    <h4>General P-curve citations</h4>
                     <ul>
                         <li>Simonsohn, U., Nelson, L. D., & Simmons, J. P. (2014). P-curve: A key to the file-drawer. <i>Journal of Experimental Psychology: General, 143</i>, 534–547. <a target="_blank" href="https://doi.org/10.1037/a0033242">doi:10.1037/a0033242</a>
-                        <li>Simonsohn, U., Simmons, J. P., & Nelson, L. D. (2015). Better p-curves: Making p-curve analysis more robust to errors, fraud, and ambitious p-hacking, a reply to Ulrich and Miller (2015). <i>Journal of Experimental Psychology: General, 144(6)</i>, 1146–1152. <a target="_blank" href="https://doi.org/10.1037/xge0000104">doi:10.1037/xge0000104</a>
+                        <li>Simonsohn, U., Simmons, J. P., & Nelson, L. D. (2015). Better P-curves: Making p-curve analysis more robust to errors, fraud, and ambitious p-hacking, a reply to Ulrich and Miller (2015). <i>Journal of Experimental Psychology: General, 144(6)</i>, 1146–1152. <a target="_blank" href="https://doi.org/10.1037/xge0000104">doi:10.1037/xge0000104</a>
                     </ul>
                         </div>
             </section>
