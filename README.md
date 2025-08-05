@@ -11,6 +11,7 @@ This is a p curve app meant to support Morey and Davis-Sober's paper "On the sta
 * Improved visualization
 * Improved value in demonstrations, as analysis updates on the fly
 * Improved p curve code (e.g., doesn't truncate p values to 2.2e-16)
+* Calculates tests that the p curve authors removed, for learning about the p curve
 * Bundled examples
 * Static website design with [WebR](https://docs.r-wasm.org/webr/latest/) and [Github actions](https://vitejs.dev/guide/static-deploy#github-pages) will allow anyone to remix and redeploy; no PHP server needed
 
