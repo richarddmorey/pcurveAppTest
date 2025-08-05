@@ -10,12 +10,19 @@ statusMessage.innerHTML = (crossOriginIsolated ? "🟢" : "🌕") + `WebR Loaded
 
 const backdrop = document.getElementById("backdrop");
 const halftoggle= document.getElementById("halftoggle");
+const lstoggle= document.getElementById("lstoggle");
 const loadingoverlay = document.getElementById("loadingoverlay");
 const textInput = document.getElementById("TApcurve");
 
 // Decode the data in the query string to load a saved analysis
 const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
+if(urlParams.has('halfp')){
+    halftoggle.checked = true;
+}
+if(urlParams.has('lstest')){
+  lstoggle.checked = true;
+}
 if(urlParams.has('data')){
   const urldata = urlParams.get('data');
   if(Base64.isValid(urldata)){

@@ -154,9 +154,10 @@ function niceNum(x){
 
 /**
  * Toggle the test table rows that represent the half p curve to be displayed or not. Running
- * this function just toggles it to whatever value it is not currently set to.
+ * this function just hides or unhides the appropriate rows based on the setting.
  */
 export function togglehalfls(){
+  setURLstring();
   if(halftoggle.checked & lstoggle.checked){
     tab.querySelectorAll('tbody>tr:nth-child(even)>td').map(x=>x.style.display='');
     tab.querySelectorAll('tbody>tr:nth-child(n+5)>td').map(x=>x.style.display='');
@@ -311,12 +312,7 @@ export async function findTestStatistics(){
   backdrop.innerHTML = "";
   simpletext.innerHTML = "";
   const str = textInput.value;
-  displayurl.value = `${window.location.origin}${window.location.pathname}?data=${Base64.encodeURI(str)}`;
-  if ('URLSearchParams' in window) {
-    const url = new URL(window.location)
-    url.searchParams.set("data", Base64.encodeURI(str))
-    history.pushState(null, '', url);
-  }
+  setURLstring();
   if(str === ''){
     wipeAnalysis();
     return;
@@ -374,6 +370,29 @@ export async function findTestStatistics(){
   await doAnalysis2(matchesObj);
   
 }
+
+function setURLstring(){
+  const str    = textInput.value;
+  const lstest = lstoggle.checked ? "lstest&" : "";
+  const halfp  = halftoggle.checked ? "halfp&" : "";
+  displayurl.value = `${window.location.origin}${window.location.pathname}?${lstest}${halfp}data=${Base64.encodeURI(str)}`;
+  if ('URLSearchParams' in window) {
+    const url = new URL(window.location)
+    if(lstest){
+      url.searchParams.set("lstest", "");
+    }else{
+      url.searchParams.delete("lstest");
+    }    
+    if(halfp){
+      url.searchParams.set("halfp", "");
+    }else{
+      url.searchParams.delete("halfp");
+    }
+    url.searchParams.set("data", Base64.encodeURI(str));
+    history.replaceState(null, '', url);
+  }
+}
+
 
 /**
  * Reset all the outputs (tables, graphs, etc) as though there is no valid input
