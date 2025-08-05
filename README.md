@@ -17,6 +17,15 @@ This is a p curve app meant to support Morey and Davis-Sober's paper "On the sta
 
 Based on [hrbrmstr](https://rud.is/)'s [WebR + Vite + Glitch: Fully In-browser WebR App Development](https://vite-webr-glitch.glitch.me/) example (see his other [excellent WebR examples](https://rud.is/webr-experiments/) too).
 
+### Potential improvements
+
+There are a few things I haven't done, but could, including:
+
+* Enable changing the LEV test calibration probability (what the authors call "power")
+* Enable changing the "half p curve" significance criterion
+
+These would not take very long, but given the poor properties of both the LEV test and the half p curve, I don't see any reason to do it besides demonstration.
+
 ### R code
 
 The underlying R functions can be found in [`public/pcurve.R`](https://github.com/richarddmorey/pcurveAppTest/blob/main/public/pcurve.R).
