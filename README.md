@@ -2,7 +2,11 @@
 
 [![P-curve demonstration app banner](https://richarddmorey.github.io/pcurveAppTest/og_image.png)](https://richarddmorey.github.io/pcurveAppTest)
 
-This is a P-curve app meant to support Morey and Davis-Sober's paper "On the statistical properties of the p-curve meta-analytic procedure" (in preparation; title subject to change). This app is meant to improve on Simonsohn's app in various ways, including:
+This is a P-curve app meant to support:
+
+Morey, R. D., & Davis-Stober, C. P. (2025). On the poor statistical properties of the P-curve meta-analytic procedure. *Journal of the American Statistical Association, 1–19*. https://doi.org/10.1080/01621459.2025.2544397
+
+This app is meant to improve on Simonsohn's app in various ways, including:
 
 * Improved transparency through the ability to comment test statistics (e.g. by labelling lines with the source of the test statistic)
 * Improved transparency through comments around the test statistics, because the app gracefully ignores non-test statistics
